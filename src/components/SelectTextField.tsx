@@ -19,6 +19,13 @@ export default function FilterableTextField({fieldName,list, onChange, variableN
         );
     };
 
+    //Currently handles team and player distinctions. Switch case would be better .
+    const optionKeyValueNames =
+        fieldName.toLowerCase().includes("team") ?
+        {key:"teamId",value:"displayName"}
+        :         {key:"playerId",value:"fullName"}
+
+
     return (
         <Box
             component="form"
@@ -37,10 +44,11 @@ export default function FilterableTextField({fieldName,list, onChange, variableN
                 {inputValue && (
                     <List>
                         {filteredOptions.map((option) => (
-                            <MenuItem key={option.teamId} value={option.displayName}
+                            <MenuItem key={option[optionKeyValueNames.key]} value={option[optionKeyValueNames.value]}
                                       onClick={()=> {
-                                          onChange(option.teamId,variableName)
-                                          setInputValue(option.displayName)
+                                          onChange(option[optionKeyValueNames.key],variableName)
+                                          setInputValue(option[optionKeyValueNames.value])
+                                          setFilteredOptions([])
                                       }
                             }>
                                 {option.displayName}

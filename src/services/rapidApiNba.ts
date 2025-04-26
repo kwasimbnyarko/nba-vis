@@ -20,7 +20,7 @@ export const getPlayersPerTeam = async (teamId:number) => {
                 teamId:teamId
             }
         })
-        return response.data
+        return response.data.data
     }catch(error){
         console.error(error)
     }

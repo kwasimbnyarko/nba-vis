@@ -10,6 +10,9 @@ function Home(){
     const [teamId, setTeamId] = useState<number>(9)
     const [team2Id, setTeam2Id] = useState<number>(1)
 
+    const [playerId, setPlayerId] = useState<number>(0)
+    const [player2Id, setPlayer2Id] = useState<number>(0)
+
     const [gameSituation, setGameSituation] = useState<string>("")
     const [quarter, setQuarter] = useState<string>("")
     const [statCategory, setStatCategory] = useState<string>("")
@@ -37,6 +40,14 @@ function Home(){
                 console.log("team id "+value)
                 setTeam2Id(value)
                 break;
+            case "player1":
+                console.log("team id "+value)
+                setPlayerId(value)
+                break;
+            case "player2":
+                console.log("team id "+value)
+                setPlayer2Id(value)
+                break;
             default:
                 console.error("No variable selected")
                 break;
@@ -63,7 +74,12 @@ function Home(){
     <div>
         <div className="play-style-section" style={{padding:"5rem"}}>
             <Typography variant="h3">Play Style</Typography>
-            <FilterableTextField fieldName="Team" list={allTeams} onChange={handleToggleChange} variableName="team1"/>
+
+            <FilterableTextField fieldName="Team 1" list={allTeams} onChange={handleToggleChange} variableName="team1"/>
+
+            <FilterableTextField fieldName="Player" list={teamPlayers} onChange={handleToggleChange} variableName="player1"/>
+
+
             <div style={{display:"flex", flexDirection:"column",alignItems:"center"}}>
                 <ToggleBar isVertical={false} values={gameSituations} onChange={handleToggleChange} variableName="gameSituation"/>
                 <br/>
