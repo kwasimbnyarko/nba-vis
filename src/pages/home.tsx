@@ -4,6 +4,7 @@ import { getAllTeams, getPlayersPerTeam} from "../services/rapidApiNba";
 import ToggleBar from "../components/ToggleBar";
 import Typography from "@mui/material/Typography";
 import FilterableTextField from "../components/SelectTextField";
+import RadarChart from "../charts/RadarChart";
 
 function Home(){
 
@@ -70,24 +71,56 @@ function Home(){
         queryFn: () => getPlayersPerTeam(team2Id)
     })
 
+    const data = [
+        { axis: "Strength", value: 8 },
+        { axis: "Speed", value: 5 },
+        { axis: "Endurance", value: 7 },
+        { axis: "Flexibility", value: 4 },
+        { axis: "Agility", value: 6 },
+    ];
+
     return (
     <div>
         <div className="play-style-section" style={{padding:"5rem"}}>
             <Typography variant="h3">Play Style</Typography>
 
-            <FilterableTextField fieldName="Team 1" list={allTeams} onChange={handleToggleChange} variableName="team1"/>
+            <div className="player-team-selection-area" style={{display:"flex", justifyContent:"space-around"}}>
+                <div>
+                    <FilterableTextField fieldName="Team 1" list={allTeams} onChange={handleToggleChange}
+                                         variableName="team1"/>
 
-            <FilterableTextField fieldName="Player" list={teamPlayers} onChange={handleToggleChange} variableName="player1"/>
+                    <FilterableTextField fieldName="Player 1" list={teamPlayers} onChange={handleToggleChange}
+                                         variableName="player1"/>
+
+                </div>
+
+                <div>
+                    <FilterableTextField fieldName="Team 2" list={allTeams} onChange={handleToggleChange}
+                                         variableName="team1"/>
+
+                    <FilterableTextField fieldName="Player 2" list={team2Players} onChange={handleToggleChange}
+                                         variableName="player1"/>
+
+                </div>
+            </div>
 
 
-            <div style={{display:"flex", flexDirection:"column",alignItems:"center"}}>
-                <ToggleBar isVertical={false} values={gameSituations} onChange={handleToggleChange} variableName="gameSituation"/>
+            <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+                <ToggleBar isVertical={false} values={gameSituations} onChange={handleToggleChange}
+                           variableName="gameSituation"/>
                 <br/>
-                {(gameSituation==="Quarters") && <ToggleBar isVertical={false} values={quarters} onChange={handleToggleChange} variableName="quarter"/>}
+                {(gameSituation === "Quarters") &&
+                    <ToggleBar isVertical={false} values={quarters} onChange={handleToggleChange}
+                               variableName="quarter"/>}
             </div>
 
             <br/>
-            <ToggleBar isVertical={true} values={statCategories} onChange={handleToggleChange} variableName="statCategory"/>
+            <ToggleBar isVertical={true} values={statCategories} onChange={handleToggleChange}
+                       variableName="statCategory"/>
+
+            <div>
+                <RadarChart data={data} dimensions={500}/>
+            </div>
         </div>
 
     </div>
