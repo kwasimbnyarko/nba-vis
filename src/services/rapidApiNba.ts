@@ -7,8 +7,7 @@ import {rapidNbaClient} from './axios';
 export const getAllTeams = async () => {
     try {
         const response = await rapidNbaClient.get("/team/id");
-
-        return response.data.data
+        return response.data
     } catch (error) {
         console.error(error);
     }
@@ -26,6 +25,23 @@ export const getPlayersPerTeam = async (teamId:number) => {
         console.error(error)
     }
 }
+
+
+//To be fixed
+
+// export const getAllPlayers = async () => {
+//     try {
+//         let allPlayers :any[]= []
+//         getAllTeams().then((teams)=>{
+//         teams.map((team:any)=>{
+//             const players = getPlayersPerTeam(team.teamId)
+//             allPlayers = [...allPlayers, players]
+//         })})
+//         return allPlayers
+//     }catch(error){
+//         console.error(error)
+//     }
+// }
 
 export const getPlayerOverview = async (playerId:number) => {
     try {
