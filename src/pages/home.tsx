@@ -5,22 +5,20 @@ import ToggleBar from "../components/ToggleBar";
 import Typography from "@mui/material/Typography";
 import FilterableTextField from "../components/SelectTextField";
 import RadarChart from "../charts/RadarChart";
+import {GAME_SITUATIONS,QUARTERS,STAT_CATEGORIES} from "../utils/constants";
+import {Player} from "../models/player";
+
 
 function Home(){
 
     const [teamId, setTeamId] = useState<number>(9)
     const [team2Id, setTeam2Id] = useState<number>(1)
 
-    const [playerId, setPlayerId] = useState<number>(0)
-    const [player2Id, setPlayer2Id] = useState<number>(0)
+    const [players, setPlayers] = useState<any[]>([])
 
     const [gameSituation, setGameSituation] = useState<string>("")
     const [quarter, setQuarter] = useState<string>("")
     const [statCategory, setStatCategory] = useState<string>("")
-
-    const gameSituations = ["Quarters","Clutch","Ahead by 10", "Behind by 10"]
-    const quarters = ["Q1", "Q2", "Q3", "Q4"]
-    const statCategories = ["General", "Offensive", "Defensive"]
 
     const handleToggleChange = (value: any,variableName:string) => {
         console.log('New selected value:', value);
@@ -41,14 +39,11 @@ function Home(){
                 console.log("team id "+value)
                 setTeam2Id(value)
                 break;
-            case "player1":
-                console.log("team id "+value)
-                setPlayerId(value)
-                break;
-            case "player2":
-                console.log("team id "+value)
-                setPlayer2Id(value)
-                break;
+            case "addNewPlayer":
+                console.log("add player "+value)
+                setPlayers([...players,value])
+                console.log(players)
+                break
             default:
                 console.error("No variable selected")
                 break;
@@ -56,28 +51,15 @@ function Home(){
     };
 
 
-    const { data: allTeams, isLoading: isTeamsLoading } = useQuery({
+    const { data: allTeams , isLoading: isLoadingTeams } = useQuery({
         queryKey: ["allTeams"],
         queryFn: () => getAllTeams(),
     });
 
-    const {data: teamPlayers, isLoading: teamPlayersLoading } = useQuery({
+    const {data: teamPlayers, isLoading: isTeeamPlauersLoading} = useQuery({
         queryKey: ["teamPlayers", teamId],
         queryFn: () => getPlayersPerTeam(teamId)
     })
-
-    const {data: team2Players, isLoading: team2PlayersLoading } = useQuery({
-        queryKey: ["teamPlayers", team2Id],
-        queryFn: () => getPlayersPerTeam(team2Id)
-    })
-
-    const data = [
-        { axis: "Strength", value: 8 },
-        { axis: "Speed", value: 5 },
-        { axis: "Endurance", value: 7 },
-        { axis: "Flexibility", value: 4 },
-        { axis: "Agility", value: 6 },
-    ];
 
     return (
     <div>
@@ -87,39 +69,46 @@ function Home(){
             <div className="player-team-selection-area" style={{display:"flex", justifyContent:"space-around"}}>
                 <div>
                     <FilterableTextField fieldName="Team 1" list={allTeams} onChange={handleToggleChange}
-                                         variableName="team1"/>
+                                         variableName="team1" disable={isLoadingTeams}/>
 
                     <FilterableTextField fieldName="Player 1" list={teamPlayers} onChange={handleToggleChange}
-                                         variableName="player1"/>
+                                         variableName="addNewPlayer" disable={isTeeamPlauersLoading}/>
 
                 </div>
 
-                <div>
-                    <FilterableTextField fieldName="Team 2" list={allTeams} onChange={handleToggleChange}
-                                         variableName="team1"/>
+                {
 
-                    <FilterableTextField fieldName="Player 2" list={team2Players} onChange={handleToggleChange}
-                                         variableName="player1"/>
+                }
+                {/*<div>*/}
+                {/*    <FilterableTextField fieldName="Team 2" list={allTeams} onChange={handleToggleChange}*/}
+                {/*                         variableName="team1"/>*/}
 
-                </div>
+                {/*    <FilterableTextField fieldName="Player 2" list={team2Players} onChange={handleToggleChange}*/}
+                {/*                         variableName="player1"/>*/}
+
+                {/*</div>*/}
             </div>
 
 
             <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                <ToggleBar isVertical={false} values={gameSituations} onChange={handleToggleChange}
+                <ToggleBar isVertical={false} values={GAME_SITUATIONS} onChange={handleToggleChange}
                            variableName="gameSituation"/>
                 <br/>
                 {(gameSituation === "Quarters") &&
-                    <ToggleBar isVertical={false} values={quarters} onChange={handleToggleChange}
+                    <ToggleBar isVertical={false} values={QUARTERS} onChange={handleToggleChange}
                                variableName="quarter"/>}
             </div>
 
             <br/>
-            <ToggleBar isVertical={true} values={statCategories} onChange={handleToggleChange}
-                       variableName="statCategory"/>
 
-            <div>
-                <RadarChart data={data} dimensions={500}/>
+
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-evenly"}}>
+                <ToggleBar isVertical={true} values={STAT_CATEGORIES} onChange={handleToggleChange}
+                           variableName="statCategory"/>
+                { (players.length) &&
+                    <RadarChart players={players} gameSituation={gameSituation}
+                                quarter={quarter} statCategory={statCategory}
+                                dimensions={500}/>}
             </div>
         </div>
 

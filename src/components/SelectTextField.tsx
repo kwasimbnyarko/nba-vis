@@ -4,8 +4,8 @@ import TextField from '@mui/material/TextField';
 import List from '@mui/material/List';
 import {MenuItem} from "@mui/material";
 
-export default function FilterableTextField({fieldName,list, onChange, variableName}:
-{fieldName:string,list:any[],onChange:(value:string,variableName:string) => void,variableName:string}) {
+export default function FilterableTextField({fieldName,list, onChange, variableName, disable}:
+{fieldName:string,list:any[],onChange:(value:any,variableName:string) => void,variableName:string, disable?: boolean}) {
     const [inputValue, setInputValue] = React.useState('');
     const [filteredOptions, setFilteredOptions] = React.useState(list);
 
@@ -22,8 +22,8 @@ export default function FilterableTextField({fieldName,list, onChange, variableN
     //Currently handles team and player distinctions. Switch case would be better .
     const optionKeyValueNames =
         fieldName.toLowerCase().includes("team") ?
-        {key:"teamId",value:"displayName"}
-        :         {key:"playerId",value:"fullName"}
+        {key:"teamId",value:"displayName",name:"Teams"}
+        :         {key:"playerId",value:"fullName", name:"Players"}
 
 
     return (
@@ -39,14 +39,18 @@ export default function FilterableTextField({fieldName,list, onChange, variableN
                     label={fieldName}
                     value={inputValue}
                     onChange={handleChange}
-                    helperText="Type to filter currencies"
+                    helperText= {`Type to filter ${optionKeyValueNames.name}`}
+                    disabled={disable}
                 />
                 {inputValue && (
                     <List>
-                        {filteredOptions.map((option) => (
+                        {filteredOptions?.map((option) => (
                             <MenuItem key={option[optionKeyValueNames.key]} value={option[optionKeyValueNames.value]}
                                       onClick={()=> {
-                                          onChange(option[optionKeyValueNames.key],variableName)
+                                          onChange(
+                                              optionKeyValueNames.key === "playerId" ?
+                                      option : option[optionKeyValueNames.key]
+                                              , variableName)
                                           setInputValue(option[optionKeyValueNames.value])
                                           setFilteredOptions([])
                                       }
