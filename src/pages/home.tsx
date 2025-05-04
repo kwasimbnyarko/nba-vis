@@ -7,6 +7,7 @@ import FilterableTextField from "../components/SelectTextField";
 import RadarChart from "../charts/RadarChart";
 import {GAME_SITUATIONS,QUARTERS,STAT_CATEGORIES} from "../utils/constants";
 import {Player} from "../models/player";
+import StyleComp from "../components/StyleComp";
 
 
 function Home(){
@@ -109,7 +110,7 @@ function Home(){
                            onChange={handleToggleChange}
                            variableName="statCategory"/>
                 { (players.length) &&
-                    <RadarChart players={players} gameSituation={gameSituation}
+                    <StyleComp players={players} gameSituation={gameSituation}
                                 quarter={quarter} statCategory={statCategory}
                                 dimensions={500}/>}
             </div>

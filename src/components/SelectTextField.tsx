@@ -16,7 +16,7 @@ export default function FilterableTextField(
         const value = event.target.value;
         setInputValue(value);
         setFilteredOptions(
-            list.filter((option) =>
+            list?.filter((option) =>
                 option.displayName.toLowerCase().includes(value.toLowerCase())
             )
         );

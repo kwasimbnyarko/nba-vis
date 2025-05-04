@@ -1,16 +1,11 @@
 import React, {useRef, useEffect} from "react";
 import * as d3 from "d3";
-import {useQueries} from "@tanstack/react-query";
-import {getPlayerStatistics} from "../services/rapidApiNba";
 
 const RadarChart = ({
-                        players,
-                        gameSituation, quarter, statCategory,
-                        dimensions = 400
+                        allPlayerData, dimensions = 400
                     }) => {
     const svgRef = useRef();
     const tooltipRef = useRef();
-
 
     /*
     * General
@@ -34,30 +29,11 @@ const RadarChart = ({
     *  - Contests
     * */
 
-    const allPlayerData = useQueries({
-        queries: players.map(player => ({
-            queryKey: ["playerData", player.playerId, statCategory],
-            queryFn: async () => {
-                const pStats = await getPlayerStatistics(player.playerId, statCategory)
-                console.log(pStats)
-                return {fullName: player.fullName, stats: pStats}
-            }
-            // staleTime: Infinity
-        })),
-        combine: (results) => {
-            return {
-                data: results.map(r => r.data),
-                pending: results.some(r => r.isPending)
-            }
-        }
-    })
-
-
     const data = allPlayerData.data
 
     useEffect(() => {
         if (allPlayerData.pending || !allPlayerData.data.length) return;
-        console.log(allPlayerData.data)
+        console.log(data.data)
         if (!data?.length) return;
 
         const statCount = data[0].stats.length;
@@ -146,13 +122,13 @@ const RadarChart = ({
                 .attr("fill", playerColor)
                 .on("mouseover", function (event, d) {
                     const [x, y] = d3.pointer(event, svgRef.current);
-                    // const svgRect = svgRef.current.getBoundingClientRect();
 
+                    console.log(player)
                     tooltip
                         .style("display", "block")
                         .html(`
-      <strong>${player.playerName}</strong><br/>
-      <strong>${d.displayName}</strong>: ${d.value}<br/>
+      <strong>${player.fullName}</strong><br/>
+      <strong>${d.displayName}</strong>: ${d.value.toFixed(2)}<br/>
       <em>${d.description}</em>
     `)
                         .style("left", `${x + 10}px`)
@@ -161,24 +137,6 @@ const RadarChart = ({
                 .on("mouseout", function () {
                     tooltip.style("display", "none");
                 });
-
-            //     .on("mouseover", function (event, d) {
-            //         tooltip
-            //             .style("display", "block")
-            //             .html(`
-            //   <strong>${player.playerName}</strong><br/>
-            //   <strong>${d.displayName}</strong>: ${d.value}<br/>
-            //   <em>${d.description}</em>
-            // `);
-            //     })
-            //     .on("mousemove", function (event) {
-            //         tooltip
-            //             .style("left", `${event.pageX + 10}px`)
-            //             .style("top", `${event.pageY - 28}px`);
-            //     })
-            //     .on("mouseout", function () {
-            //         tooltip.style("display", "none");
-            //     });
         });
     }, [data]);
 
