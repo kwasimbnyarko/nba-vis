@@ -11,7 +11,7 @@ import {Player} from "../models/player";
 
 function Home(){
 
-    const [teamId, setTeamId] = useState<number>(9)
+    const [teamId, setTeamId] = useState<any>(null)
     const [team2Id, setTeam2Id] = useState<number>(1)
 
     const [players, setPlayers] = useState<any[]>([])
@@ -42,7 +42,7 @@ function Home(){
             case "addNewPlayer":
                 console.log("add player "+value)
                 setPlayers([...players,value])
-                console.log(players)
+                // console.log(players)
                 break
             default:
                 console.error("No variable selected")
@@ -56,9 +56,10 @@ function Home(){
         queryFn: () => getAllTeams(),
     });
 
-    const {data: teamPlayers, isLoading: isTeeamPlauersLoading} = useQuery({
+    const {data: teamPlayers, isLoading: isTeamPlayersLoading} = useQuery({
         queryKey: ["teamPlayers", teamId],
-        queryFn: () => getPlayersPerTeam(teamId)
+        queryFn: () => getPlayersPerTeam(teamId),
+        enabled: !!teamId
     })
 
     return (
@@ -66,44 +67,46 @@ function Home(){
         <div className="play-style-section" style={{padding:"5rem"}}>
             <Typography variant="h3">Play Style</Typography>
 
-            <div className="player-team-selection-area" style={{display:"flex", justifyContent:"space-around"}}>
+            <div className="player-team-selection-area"
+                 style={{display:"flex", justifyContent:"space-around"}}>
                 <div>
-                    <FilterableTextField fieldName="Team 1" list={allTeams} onChange={handleToggleChange}
-                                         variableName="team1" disable={isLoadingTeams}/>
+                    <FilterableTextField fieldName="Team" list={allTeams}
+                                         onChange={handleToggleChange}
+                                         variableName="team1"
+                                         disable={isLoadingTeams}/>
 
-                    <FilterableTextField fieldName="Player 1" list={teamPlayers} onChange={handleToggleChange}
-                                         variableName="addNewPlayer" disable={isTeeamPlauersLoading}/>
+                    <FilterableTextField fieldName="Player" list={teamPlayers}
+                                         onChange={handleToggleChange}
+                                         variableName="addNewPlayer"
+                                         disable={isTeamPlayersLoading
+                                             || teamId === null}/>
 
                 </div>
 
-                {
-
-                }
-                {/*<div>*/}
-                {/*    <FilterableTextField fieldName="Team 2" list={allTeams} onChange={handleToggleChange}*/}
-                {/*                         variableName="team1"/>*/}
-
-                {/*    <FilterableTextField fieldName="Player 2" list={team2Players} onChange={handleToggleChange}*/}
-                {/*                         variableName="player1"/>*/}
-
-                {/*</div>*/}
             </div>
 
 
-            <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                <ToggleBar isVertical={false} values={GAME_SITUATIONS} onChange={handleToggleChange}
+            <div style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center"}}>
+                <ToggleBar isVertical={false} values={GAME_SITUATIONS}
+                           onChange={handleToggleChange}
                            variableName="gameSituation"/>
                 <br/>
                 {(gameSituation === "Quarters") &&
-                    <ToggleBar isVertical={false} values={QUARTERS} onChange={handleToggleChange}
+                    <ToggleBar isVertical={false} values={QUARTERS}
+                               onChange={handleToggleChange}
                                variableName="quarter"/>}
             </div>
 
             <br/>
 
 
-            <div style={{display:"flex", alignItems:"center", justifyContent:"space-evenly"}}>
-                <ToggleBar isVertical={true} values={STAT_CATEGORIES} onChange={handleToggleChange}
+            <div style={{
+                display:"flex", alignItems:"center",
+                justifyContent:"space-evenly"}}>
+                <ToggleBar isVertical={true} values={STAT_CATEGORIES}
+                           onChange={handleToggleChange}
                            variableName="statCategory"/>
                 { (players.length) &&
                     <RadarChart players={players} gameSituation={gameSituation}

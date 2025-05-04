@@ -4,8 +4,11 @@ import TextField from '@mui/material/TextField';
 import List from '@mui/material/List';
 import {MenuItem} from "@mui/material";
 
-export default function FilterableTextField({fieldName,list, onChange, variableName, disable}:
-{fieldName:string,list:any[],onChange:(value:any,variableName:string) => void,variableName:string, disable?: boolean}) {
+export default function FilterableTextField(
+    {fieldName,list, onChange, variableName, disable}:
+        {fieldName:string,list:any[],onChange:(value:any,variableName:string)
+        => void,variableName:string, disable?: boolean}) {
+
     const [inputValue, setInputValue] = React.useState('');
     const [filteredOptions, setFilteredOptions] = React.useState(list);
 
