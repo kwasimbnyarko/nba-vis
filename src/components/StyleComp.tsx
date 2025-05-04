@@ -53,7 +53,8 @@ const StyleComp = ({
 
         return (
         <div>
-                <RadarChart allPlayerData={allPlayerData}/>
+            <RadarChart allPlayerData={allPlayerData}/>
+            <RadarChart allPlayerData={allPlayerData}/>
         </div>
     )
 };

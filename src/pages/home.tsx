@@ -4,10 +4,9 @@ import { getAllTeams, getPlayersPerTeam} from "../services/rapidApiNba";
 import ToggleBar from "../components/ToggleBar";
 import Typography from "@mui/material/Typography";
 import FilterableTextField from "../components/SelectTextField";
-import RadarChart from "../charts/RadarChart";
 import {GAME_SITUATIONS,QUARTERS,STAT_CATEGORIES} from "../utils/constants";
-import {Player} from "../models/player";
 import StyleComp from "../components/StyleComp";
+import {myGetAllTeams} from "../services/myServerCalls";
 
 
 function Home(){
@@ -20,6 +19,8 @@ function Home(){
     const [gameSituation, setGameSituation] = useState<string>("")
     const [quarter, setQuarter] = useState<string>("")
     const [statCategory, setStatCategory] = useState<string>("")
+
+    // myGetAllTeams().then(r=> console.log(r))
 
     const handleToggleChange = (value: any,variableName:string) => {
         console.log('New selected value:', value);

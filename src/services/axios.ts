@@ -11,3 +11,8 @@ export const rapidNbaClient = axios.create({
             'x-rapidapi-host': 'api-basketball-nba.p.rapidapi.com'
         }
 })
+
+export const myServer = axios.create({
+    baseURL: 'http://localhost:3030/',
+    timeout: 10000
+})
