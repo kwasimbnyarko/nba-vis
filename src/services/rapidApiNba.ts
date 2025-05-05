@@ -76,14 +76,10 @@ export const getPlayerStatistics = async (playerId: number, statCategory: string
         const response = await rapidNbaClient.get("nba-player-statistics", {
             params: {
                 playerId: playerId,
-                // season:2025
             }
         })
 
         const data = [...response.data.categories[2].stats, ...response.data.categories[1].stats, ...response.data.categories[0].stats]
-        // console.log(response.data)
-        // console.log(data
-        //     .filter((field: any) => selectedCat.includes(field.name)))
         return data
             .filter((field: any) => selectedCat.includes(field.name))
     } catch (error) {

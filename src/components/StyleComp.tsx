@@ -2,6 +2,7 @@ import React from "react";
 import RadarChart from "../charts/RadarChart";
 import {useQueries} from "@tanstack/react-query";
 import {getPlayerStatistics} from "../services/rapidApiNba";
+import {getPlayerOrTeamStats} from "../services/myServerCalls";
 
 interface StyleCompProps {
     players:any[], gameSituation:string, quarter:string, statCategory:string, dimensions:number
@@ -32,6 +33,8 @@ const StyleComp = ({
  *  - Def Reb
  *  - Contests
  * */
+
+    getPlayerOrTeamStats(players[0].playerId,0,"off",0).then(r => console.log(r))
 
     const allPlayerData = useQueries({
         queries: players.map(player => ({

@@ -12,21 +12,24 @@ export default function FilterableTextField(
     const [inputValue, setInputValue] = React.useState('');
     const [filteredOptions, setFilteredOptions] = React.useState(list);
 
+
+    //Currently handles team and player distinctions. Switch case would be better .
+    const optionKeyValueNames =
+        fieldName.toLowerCase().includes("team") ?
+            {key:"TEAM_ID",value:"TEAM_NAME",name:"Teams"}
+            :         {key:"PLAYER_ID",value:"PLAYER_NAME", name:"Players"}
+
+
+
     const handleChange = (event:any) => {
         const value = event.target.value;
         setInputValue(value);
         setFilteredOptions(
             list?.filter((option) =>
-                option.displayName.toLowerCase().includes(value.toLowerCase())
+                option[optionKeyValueNames.value].toLowerCase().includes(value.toLowerCase())
             )
         );
     };
-
-    //Currently handles team and player distinctions. Switch case would be better .
-    const optionKeyValueNames =
-        fieldName.toLowerCase().includes("team") ?
-        {key:"teamId",value:"displayName",name:"Teams"}
-        :         {key:"playerId",value:"fullName", name:"Players"}
 
 
     return (
@@ -47,20 +50,22 @@ export default function FilterableTextField(
                 />
                 {inputValue && (
                     <List>
-                        {filteredOptions?.map((option) => (
-                            <MenuItem key={option[optionKeyValueNames.key]} value={option[optionKeyValueNames.value]}
+                        {filteredOptions?.map((option, index) =>
+                            {if (index < 6) {
+                                return (<MenuItem key={option[optionKeyValueNames.key]} value={option[optionKeyValueNames.value]}
                                       onClick={()=> {
                                           onChange(
-                                              optionKeyValueNames.key === "playerId" ?
+                                              optionKeyValueNames.key === "PLAYER_ID" ?
                                       option : option[optionKeyValueNames.key]
                                               , variableName)
                                           setInputValue(option[optionKeyValueNames.value])
                                           setFilteredOptions([])
                                       }
                             }>
-                                {option.displayName}
-                            </MenuItem>
-                        ))}
+                                {option[optionKeyValueNames.value]}
+                            </MenuItem>)}
+                        }
+                        )}
                     </List>
                 )}
             </div>

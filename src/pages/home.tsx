@@ -6,13 +6,15 @@ import Typography from "@mui/material/Typography";
 import FilterableTextField from "../components/SelectTextField";
 import {GAME_SITUATIONS,QUARTERS,STAT_CATEGORIES} from "../utils/constants";
 import StyleComp from "../components/StyleComp";
-import {myGetAllTeams} from "../services/myServerCalls";
+import {getAllPlayers, myGetAllTeams} from "../services/myServerCalls";
 
 
 function Home(){
 
     const [teamId, setTeamId] = useState<any>(null)
-    const [team2Id, setTeam2Id] = useState<number>(1)
+
+    //The negative implies "Comparing Players"
+    const [comparingTeams, setComparingTeams] = useState<boolean>(false)
 
     const [players, setPlayers] = useState<any[]>([])
 
@@ -37,14 +39,12 @@ function Home(){
             case "team1":
                 setTeamId(value)
                 break;
-            case "team2":
-                console.log("team id "+value)
-                setTeam2Id(value)
-                break;
             case "addNewPlayer":
                 console.log("add player "+value)
                 setPlayers([...players,value])
-                // console.log(players)
+                break
+            case "playerOrTeam":
+                setComparingTeams(value.toLowerCase().includes("team"))
                 break
             default:
                 console.error("No variable selected")
@@ -55,12 +55,12 @@ function Home(){
 
     const { data: allTeams , isLoading: isLoadingTeams } = useQuery({
         queryKey: ["allTeams"],
-        queryFn: () => getAllTeams(),
+        queryFn: () => myGetAllTeams(),
     });
 
-    const {data: teamPlayers, isLoading: isTeamPlayersLoading} = useQuery({
-        queryKey: ["teamPlayers", teamId],
-        queryFn: () => getPlayersPerTeam(teamId),
+    const {data: allPlayers, isLoading: isPlayersLoading} = useQuery({
+        queryKey: ["allPlayers"],
+        queryFn: () => getAllPlayers(),
         enabled: !!teamId
     })
 
@@ -72,16 +72,22 @@ function Home(){
             <div className="player-team-selection-area"
                  style={{display:"flex", justifyContent:"space-around"}}>
                 <div>
-                    <FilterableTextField fieldName="Team" list={allTeams}
-                                         onChange={handleToggleChange}
-                                         variableName="team1"
-                                         disable={isLoadingTeams}/>
+                    {
+                        comparingTeams ?
+                            <FilterableTextField fieldName="Search and add teams" list={allTeams}
+                                                 onChange={handleToggleChange}
+                                                 variableName="team1"
+                                                 disable={isLoadingTeams}/>
+                            :
+                            <FilterableTextField fieldName="Search and add players" list={allPlayers}
+                                                 onChange={handleToggleChange}
+                                                 variableName="addNewPlayer"
+                                                 disable={isPlayersLoading
+                                                     || teamId === null}/>
+                    }
 
-                    <FilterableTextField fieldName="Player" list={teamPlayers}
-                                         onChange={handleToggleChange}
-                                         variableName="addNewPlayer"
-                                         disable={isTeamPlayersLoading
-                                             || teamId === null}/>
+
+
 
                 </div>
 
@@ -91,6 +97,10 @@ function Home(){
             <div style={{
                 display: "flex", flexDirection: "column",
                 alignItems: "center"}}>
+                <ToggleBar isVertical={false} values={["Compare Players","Compare Teams"]}
+                           onChange={handleToggleChange}
+                           variableName="playerOrTeam"/>
+                <br/>
                 <ToggleBar isVertical={false} values={GAME_SITUATIONS}
                            onChange={handleToggleChange}
                            variableName="gameSituation"/>
