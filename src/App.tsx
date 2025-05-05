@@ -1,13 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import {
-  getAllTeams,
-  getPlayerOverview,
-  getPlayersPerTeam,
-  getPlayerSplits,
-  getPlayerStatistics
-} from "./services/rapidApiNba";
 import {Route,BrowserRouter as Router, Routes, useLocation} from "react-router-dom";
 import Home from "./pages/home"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";

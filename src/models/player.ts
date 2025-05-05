@@ -1,6 +1,9 @@
 export interface Player{
     id: number,
-    abbreviation: string,
-    displayName: string,
-    location: string
+    fullName: string,
+    teamName: string,
+    teamId: number
+    // abbreviation: string,
+    // displayName: string,
+    // location: string
 }
