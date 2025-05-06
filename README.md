@@ -6,5 +6,5 @@ pip install -r requirements.txt
 
 ### Run Flask server
 ```bash
-python app.py
+python nba_api_server.py
 ```
