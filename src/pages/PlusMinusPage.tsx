@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Typography from "@mui/material/Typography";
 import PlusMinusPlot from "../charts/PlusMinusPlot";
 import axios from "axios";
 
@@ -32,8 +31,8 @@ const PlusMinusPage: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            // API request to fetch player logs
-            const response = await axios.get("http://127.0.0.1:5000/player-logs", {
+            // API request to fetch player plus-minus data
+            const response = await axios.get("http://127.0.0.1:5000/player-plus-minus", {
                 params: {
                     player_name: playerName,
                     season: season,
