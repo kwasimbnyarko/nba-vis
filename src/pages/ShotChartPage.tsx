@@ -1,0 +1,128 @@
+import React, { useEffect, useState } from "react";
+import ShotChartPlot from "../charts/ShotChartPlot";
+import axios from "axios";
+
+const ShotChartPage: React.FC = () => {
+    // State variables for data, loading, error, player name, and season
+    const [data, setData] = useState<{ LOC_X: number; LOC_Y: number; SHOT_MADE_FLAG: number }[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [playerName, setPlayerName] = useState<string>("Stephen Curry");
+    const [season, setSeason] = useState<string>("2024-25");
+    const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
+
+    // List of available seasons
+    const seasons = [
+        "2024-25",
+        "2023-24",
+        "2022-23",
+        "2021-22",
+        "2020-21",
+        "2019-20",
+        "2018-19",
+        "2017-18",
+        "2016-17",
+        "2015-16"
+    ];
+
+    // Fetch data from the backend API
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // API request to fetch player shot chart data
+            const response = await axios.get("http://127.0.0.1:5000/player-shot-chart", {
+                params: {
+                    player_name: playerName,
+                    season: season,
+                },
+            });
+
+            // Update shot chart data
+            setData(response.data);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setError("Failed to fetch data. Please try again later."); // Set error message
+        } finally {
+            setLoading(false); // Stop loading spinner
+        }
+    };
+
+    // Fetch data whenever playerName or season changes
+    useEffect(() => {
+        fetchData();
+    }, [playerName, season]);
+
+    // Handle changes to the player name input
+    const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setInputPlayerName(event.target.value); // Update input state
+    };
+
+    // Update playerName state when Enter key is pressed
+    const handlePlayerNameSubmit = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            setPlayerName(inputPlayerName); // Set player name
+        }
+    };
+
+    // Handle changes to the season dropdown
+    const handleSeasonChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSeason(event.target.value); // Update season state
+    };
+
+    // Show loading or error messages if applicable
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+
+    return (
+        <div style={{ padding: "2rem" }}>
+            {/* Player Name Input */}
+            <div style={{ marginBottom: "1rem" }}>
+                <label htmlFor="player-name" style={{ marginRight: "1rem" }}>
+                    Player Name:
+                </label>
+                <input
+                    id="player-name"
+                    type="text"
+                    value={inputPlayerName}
+                    onChange={handlePlayerNameChange}
+                    onKeyDown={handlePlayerNameSubmit}
+                    placeholder="Enter player name"
+                    style={{
+                        padding: "0.5rem",
+                        fontSize: "1rem",
+                        width: "300px",
+                    }}
+                />
+            </div>
+
+            {/* Season Dropdown */}
+            <div style={{ marginBottom: "2rem" }}>
+                <label htmlFor="season" style={{ marginRight: "1rem" }}>
+                    Season:
+                </label>
+                <select
+                    id="season"
+                    value={season}
+                    onChange={handleSeasonChange}
+                    style={{
+                        padding: "0.5rem",
+                        fontSize: "1rem",
+                    }}
+                >
+                    {seasons.map((s) => (
+                        <option key={s} value={s}>
+                            {s}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {/* ShotChartPlot Visualization */}
+            <ShotChartPlot data={data} width={800} height={600} />
+        </div>
+    );
+};
+
+export default ShotChartPage;

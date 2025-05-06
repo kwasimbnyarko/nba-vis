@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from nba_api.stats.endpoints import PlayerGameLog, LeagueGameLog
+from nba_api.stats.endpoints import PlayerGameLog, LeagueGameLog, ShotChartDetail
 from nba_api.stats.static import players
 import pandas as pd
 
@@ -13,8 +13,8 @@ def get_player_id(name):
     return players.find_players_by_full_name(name)[0]['id']
 
 
-@app.route('/player-logs', methods=['GET'])
-def get_player_logs():
+@app.route('/player-plus-minus', methods=['GET'])
+def get_player_plus_minus():
     # Get query parameters
     player_name = request.args.get('player_name')
     season = request.args.get('season', '2024-25')
@@ -72,6 +72,41 @@ def get_player_logs():
             results.extend(team_results)
 
         return jsonify(results)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/player-shot-chart', methods=['GET'])
+def get_shot_chart():
+    # Get query parameters
+    player_name = request.args.get('player_name')
+    season = request.args.get('season', '2024-25')
+
+    # Validate inputs
+    if not player_name:
+        return jsonify({"error": "player_name is required"}), 400
+
+    try:
+        # Get player ID
+        player_id = get_player_id(player_name)
+
+        # Fetch shot chart data
+        shot_chart = ShotChartDetail(
+            player_id=player_id,
+            team_id=0,
+            season_nullable=season,
+            season_type_all_star='Regular Season',
+            context_measure_simple='FGA'
+        )
+
+        # Extract the data frame
+        shot_df = shot_chart.get_data_frames()[0]
+
+        # Convert to JSON
+        shot_data = shot_df.to_dict(orient='records')
+
+        return jsonify(shot_data)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

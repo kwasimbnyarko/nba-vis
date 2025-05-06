@@ -12,6 +12,7 @@ import {Route,BrowserRouter as Router, Routes, useLocation} from "react-router-d
 import Home from "./pages/home"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import PlusMinusPage from "./pages/PlusMinusPage";
+import ShotChartPage from "./pages/ShotChartPage";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -33,6 +34,7 @@ function App() {
             <Routes>
                 <Route path='/' element={<Home/>}/>
                 <Route path="/plus-minus-plot" element={<PlusMinusPage />} />
+                <Route path="/shot-chart" element={<ShotChartPage />} />
             </Routes>
         </Router>
     </QueryClientProvider>
