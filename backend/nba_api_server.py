@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from nba_api.stats.endpoints import PlayerGameLog, LeagueGameLog, ShotChartDetail
-from nba_api.stats.static import players
+from nba_api.stats.static import players, teams
 import pandas as pd
 
 app = Flask(__name__)
@@ -72,6 +72,62 @@ def get_player_plus_minus():
             results.extend(team_results)
 
         return jsonify(results)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/league-plus-minus', methods=['GET'])
+def get_league_plus_minus():
+    # Get query parameters
+    season = request.args.get('season', '2024-25')
+    team_abbreviation = request.args.get('team')
+    limit = int(request.args.get('limit', 25))
+
+    try:
+        # Fetch game logs for all players in the league
+        league_log = LeagueGameLog(season=season, season_type_all_star='Regular Season', player_or_team_abbreviation='P')
+        league_df = league_log.get_data_frames()[0]
+
+        # Filter relevant columns
+        player_logs = league_df[['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ABBREVIATION', 'GAME_ID', 'PLUS_MINUS']]
+
+        # Filter by team if `team_abbreviation` is provided
+        if team_abbreviation:
+            player_logs = player_logs[player_logs['TEAM_ABBREVIATION'] == team_abbreviation]
+
+        # Aggregate plus/minus by player
+        player_plus_minus = player_logs.groupby(['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ABBREVIATION']).agg(
+            total_plus_minus=('PLUS_MINUS', 'sum'),
+            avg_plus_minus=('PLUS_MINUS', 'mean'),
+            games_played=('GAME_ID', 'count')
+        ).reset_index()
+
+        # Sort by total plus/minus (descending) and limit the results
+        player_plus_minus = player_plus_minus.sort_values(by='total_plus_minus', ascending=False).head(limit)
+
+        # Convert to JSON
+        results = player_plus_minus.to_dict(orient='records')
+
+        return jsonify(results)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/teams', methods=['GET'])
+def get_teams():
+    try:
+        # Fetch all teams using nba_api
+        all_teams = teams.get_teams()
+
+        # Extract relevant fields (name and abbreviation)
+        team_list = [{"name": team["full_name"], "abbreviation": team["abbreviation"]} for team in all_teams]
+
+        # Sort the list alphabetically by team name
+        sorted_team_list = sorted(team_list, key=lambda x: x["name"])
+
+        return jsonify(sorted_team_list)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
