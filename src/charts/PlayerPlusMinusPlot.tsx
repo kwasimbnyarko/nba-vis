@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import "./PlayerPlusMinusPlot.css"; // Import CSS for styling
 
 // Props interface for the PlayerPlusMinusPlot component
 interface PlayerPlusMinusPlotProps {
     data: { x: number; y: number; win: boolean }[]; // Scatter plot data
+    slope: number; // Slope of the best fit line
+    intercept: number; // Intercept of the best fit line
     width: number; // Width of the chart
     height: number; // Height of the chart
 }
 
 // Main PlayerPlusMinusPlot component
-const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, height }) => {
-    const ref = React.useRef<SVGSVGElement>(null); // Reference to the SVG element
+const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, intercept, width, height }) => {
+    const ref = useRef<SVGSVGElement>(null); // Reference to the SVG element
 
-    React.useEffect(() => {
+    useEffect(() => {
         const svg = d3.select(ref.current);
         svg.selectAll("*").remove(); // Clear previous renders
 
@@ -211,7 +213,22 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, 
             .attr("y", 34)
             .attr("class", "legend-item")
             .text("Loss");
-    }, [data, width, height]);
+
+        // Add the best fit line
+        const xStart = d3.min(data, (d) => d.x) || 0;
+        const xEnd = d3.max(data, (d) => d.x) || 0;
+        const yStart = slope * xStart + intercept;
+        const yEnd = slope * xEnd + intercept;
+        g.append("line")
+            .attr("x1", x(xStart))
+            .attr("y1", y(yStart))
+            .attr("x2", x(xEnd))
+            .attr("y2", y(yEnd))
+            .attr("class", "best-fit-line")
+            .attr("stroke", "blue")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "5,5");
+    }, [data, slope, intercept, width, height]);
 
     return <svg ref={ref} width={width} height={height}></svg>;
 };
