@@ -69,7 +69,7 @@ const LeaguePlusMinusPage: React.FC = () => {
 
     // Handle bar click to navigate to the player's page
     const handleBarClick = (playerName: string) => {
-        navigate(`/player-plus-minus?player_name=${encodeURIComponent(playerName)}`);
+        navigate(`/player-plus-minus?player_name=${encodeURIComponent(playerName)}&season=${encodeURIComponent(season)}`);
     };
 
     // Show loading or error messages if applicable

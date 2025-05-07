@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import PlusMinusPlot from "../charts/PlayerPlusMinusPlot";
 import axios from "axios";
 
@@ -10,6 +11,23 @@ const PlayerPlusMinusPage: React.FC = () => {
     const [playerName, setPlayerName] = useState<string>("Stephen Curry");
     const [season, setSeason] = useState<string>("2024-25");
     const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
+
+    // Extract query parameters from the URL
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const queryPlayerName = queryParams.get("player_name");
+    const querySeason = queryParams.get("season");
+
+    // Update playerName and season from query parameters if available
+    useEffect(() => {
+        if (queryPlayerName) {
+            setPlayerName(queryPlayerName);
+            setInputPlayerName(queryPlayerName);
+        }
+        if (querySeason) {
+            setSeason(querySeason);
+        }
+    }, [queryPlayerName, querySeason]);
 
     // List of available seasons
     const seasons = [
