@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import PlusMinusPlot from "../charts/PlusMinusPlot";
+import PlusMinusPlot from "../charts/PlayerPlusMinusPlot";
 import axios from "axios";
 
-const PlusMinusPage: React.FC = () => {
+const PlayerPlusMinusPage: React.FC = () => {
     // State variables for data, loading, error, player name, and season
     const [data, setData] = useState<{ x: number; y: number; win: boolean }[]>([]);
     const [loading, setLoading] = useState(false);
@@ -131,4 +131,4 @@ const PlusMinusPage: React.FC = () => {
     );
 };
 
-export default PlusMinusPage;
+export default PlayerPlusMinusPage;

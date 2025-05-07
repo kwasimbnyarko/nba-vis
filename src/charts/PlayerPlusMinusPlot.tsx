@@ -1,16 +1,16 @@
 import React from "react";
 import * as d3 from "d3";
-import "./PlusMinusPlot.css"; // Import CSS for styling
+import "./PlayerPlusMinusPlot.css"; // Import CSS for styling
 
-// Props interface for the PlusMinusPlot component
-interface PlusMinusPlotProps {
+// Props interface for the PlayerPlusMinusPlot component
+interface PlayerPlusMinusPlotProps {
     data: { x: number; y: number; win: boolean }[]; // Scatter plot data
     width: number; // Width of the chart
     height: number; // Height of the chart
 }
 
-// Main PlusMinusPlot component
-const PlusMinusPlot: React.FC<PlusMinusPlotProps> = ({ data, width, height }) => {
+// Main PlayerPlusMinusPlot component
+const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, height }) => {
     const ref = React.useRef<SVGSVGElement>(null); // Reference to the SVG element
 
     React.useEffect(() => {
@@ -216,4 +216,4 @@ const PlusMinusPlot: React.FC<PlusMinusPlotProps> = ({ data, width, height }) =>
     return <svg ref={ref} width={width} height={height}></svg>;
 };
 
-export default PlusMinusPlot;
+export default PlayerPlusMinusPlot;
