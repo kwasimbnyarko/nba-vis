@@ -1,28 +1,31 @@
 import React, {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
-import { getAllTeams, getPlayersPerTeam} from "../services/rapidApiNba";
 import ToggleBar from "../components/ToggleBar";
 import Typography from "@mui/material/Typography";
 import FilterableTextField from "../components/SelectTextField";
-import {GAME_SITUATIONS,QUARTERS,STAT_CATEGORIES} from "../utils/constants";
+import {
+    GAME_SITUATIONS,
+    PLAYER_GRAPH_COLORS,
+    QUARTERS,
+    STAT_CATEGORIES
+} from "../utils/constants";
 import StyleComp from "../components/StyleComp";
 import {getAllPlayers, myGetAllTeams} from "../services/myServerCalls";
 
-
 function Home(){
 
-    const [teamId, setTeamId] = useState<any>(null)
+    // const [teamId, setTeamId] = useState<any>(null)
 
     //The negative implies "Comparing Players"
     const [comparingTeams, setComparingTeams] = useState<boolean>(false)
 
     const [players, setPlayers] = useState<any[]>([])
+    const [teams, setTeams] = useState<any[]>([])
 
     const [gameSituation, setGameSituation] = useState<string>("")
-    const [quarter, setQuarter] = useState<string>("")
+    const [quarter, setQuarter] = useState<string>("All")
     const [statCategory, setStatCategory] = useState<string>("")
 
-    // myGetAllTeams().then(r=> console.log(r))
 
     const handleToggleChange = (value: any,variableName:string) => {
         console.log('New selected value:', value);
@@ -36,13 +39,15 @@ function Home(){
             case "statCategory":
                 setStatCategory(value)
                 break;
-            case "team1":
-                setTeamId(value)
+            case "addTeam":
+                setTeams(value)
                 break;
             case "addNewPlayer":
                 console.log("add player "+value)
                 setPlayers([...players,value])
                 break
+            case "removeTeam":
+                // setTeams()
             case "playerOrTeam":
                 setComparingTeams(value.toLowerCase().includes("team"))
                 break
@@ -61,7 +66,6 @@ function Home(){
     const {data: allPlayers, isLoading: isPlayersLoading} = useQuery({
         queryKey: ["allPlayers"],
         queryFn: () => getAllPlayers(),
-        enabled: !!teamId
     })
 
     return (
@@ -82,12 +86,8 @@ function Home(){
                             <FilterableTextField fieldName="Search and add players" list={allPlayers}
                                                  onChange={handleToggleChange}
                                                  variableName="addNewPlayer"
-                                                 disable={isPlayersLoading
-                                                     || teamId === null}/>
+                                                 disable={isPlayersLoading}/>
                     }
-
-
-
 
                 </div>
 
@@ -97,7 +97,8 @@ function Home(){
             <div style={{
                 display: "flex", flexDirection: "column",
                 alignItems: "center"}}>
-                <ToggleBar isVertical={false} values={["Compare Players","Compare Teams"]}
+                <ToggleBar isVertical={false}
+                           values={["Compare Players","Compare Teams"]}
                            onChange={handleToggleChange}
                            variableName="playerOrTeam"/>
                 <br/>
@@ -105,7 +106,38 @@ function Home(){
                            onChange={handleToggleChange}
                            variableName="gameSituation"/>
                 <br/>
-                {(gameSituation === "Quarters") &&
+                <div>
+                    {comparingTeams ? teams.map((team,index)=>
+                        <div key={index}
+                             style={{backgroundColor:PLAYER_GRAPH_COLORS[index],
+                                 padding:"0.5rem",
+                                 borderRadius:"2rem"}}>
+                            {team.TEAM_NAME}
+
+                            <p onClick={()=>{
+                                setTeams(teams.filter(t=>t !== team))
+                            }}>x</p>
+                        </div>):  players.map((player,index)=>
+                        <div key={index}
+                             style={{
+                                 backgroundColor: PLAYER_GRAPH_COLORS[index],
+                                 padding: "0.5rem",
+                                 borderRadius: "2rem",
+                                 display:"flex"
+                             }}>
+                            {player.PLAYER_NAME}
+
+                            <div
+                            style={{paddingLeft:"1rem", cursor:"pointer"}}
+                                onClick={() => {
+                                console.log("ha")
+                                setPlayers(players.filter(p => p !== player))
+                            }}>X</div>
+                        </div>)
+                    }
+                </div>
+                <br/>
+                {(gameSituation === "Quarters" || !gameSituation) &&
                     <ToggleBar isVertical={false} values={QUARTERS}
                                onChange={handleToggleChange}
                                variableName="quarter"/>}
@@ -122,6 +154,7 @@ function Home(){
                            variableName="statCategory"/>
                 { (players.length) &&
                     <StyleComp players={players} gameSituation={gameSituation}
+                               teams = {teams} isComparingTeams={comparingTeams}
                                 quarter={quarter} statCategory={statCategory}
                                 dimensions={500}/>}
             </div>
