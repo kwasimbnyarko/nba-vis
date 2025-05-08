@@ -3,13 +3,15 @@ import ShotChartPlot from "../charts/ShotChartPlot";
 import axios from "axios";
 
 const ShotChartPage: React.FC = () => {
-    // State variables for data, loading, error, player name, and season
+    // State variables for data, loading, error, team name, player name, and season
     const [data, setData] = useState<{ LOC_X: number; LOC_Y: number; SHOT_MADE_FLAG: number }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [playerName, setPlayerName] = useState<string>("Stephen Curry");
+    const [team, setTeamName] = useState<string>("Atlanta Hawks");
     const [season, setSeason] = useState<string>("2024-25");
+    const [playerName, setPlayerName] = useState<string>("Stephen Curry");
     const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
+    const [playersOnTeam, setPlayersOnTeam] = useState<string[]>([]);
 
     // List of available seasons
     const seasons = [
@@ -25,45 +27,95 @@ const ShotChartPage: React.FC = () => {
         "2015-16"
     ];
 
-    // Fetch data from the backend API
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            setError(null);
+    // List of available teams
+    const teams = [
+        "Atlanta Hawks",
+        "Boston Celtics",
+        "Brooklyn Nets",
+        "Charlotte Hornets",
+        "Chicago Bulls",
+        "Cleveland Cavaliers",
+        "Dallas Mavericks",
+        "Denver Nuggets",
+        "Detroit Pistons",
+        "Golden State Warriors",
+        "Houston Rockets",
+        "Indiana Pacers",
+        "Los Angeles Clippers",
+        "Los Angeles Lakers",
+        "Memphis Grizzlies",
+        "Miami Heat",
+        "Milwaukee Bucks",
+        "Minnesota Timberwolves",
+        "New Orleans Pelicans",
+        "New York Knicks",
+        "Oklahoma City Thunder",
+        "Orlando Magic",
+        "Philadelphia 76ers",
+        "Phoenix Suns",
+        "Portland Trail Blazers",
+        "Sacramento Kings",
+        "San Antonio Spurs",
+        "Toronto Raptors",
+        "Utah Jazz",
+        "Washington Wizards",
+    ];
 
-            // API request to fetch player shot chart data
-            const response = await axios.get("http://127.0.0.1:5000/player-shot-chart", {
-                params: {
-                    player_name: playerName,
-                    season: season,
-                },
-            });
-
-            // Update shot chart data
-            setData(response.data);
-        } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("Failed to fetch data. Please try again later."); // Set error message
-        } finally {
-            setLoading(false); // Stop loading spinner
-        }
-    };
-
-    // Fetch data whenever playerName or season changes
     useEffect(() => {
+        const fetchPlayers = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:5000/team-players", {
+                    params: {
+                        team_name: team,
+                        season: season,
+                    },
+                });
+    
+                const players = response.data;
+                setPlayersOnTeam(players);
+
+                 // Only auto-set if current player is not in the new list
+                if (!players.includes(playerName)) {
+                    setInputPlayerName(players[0]);
+                    setPlayerName(players[0]);
+                }
+    
+            } catch (err) {
+                console.error("Error fetching players:", err);
+                setPlayersOnTeam([]);
+            }
+        };
+
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+    
+                // API request to fetch player shot chart data
+                const response = await axios.get("http://127.0.0.1:5000/player-shot-chart", {
+                    params: {
+                        player_name: playerName,
+                        season: season,
+                    },
+                });
+    
+                // Update shot chart data
+                setData(response.data);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError("Failed to fetch data. Please try again later."); // Set error message
+            } finally {
+                setLoading(false); // Stop loading spinner
+            }
+        };
+
+        fetchPlayers();
         fetchData();
-    }, [playerName, season]);
+    }, [team, playerName, season]);
 
-    // Handle changes to the player name input
-    const handlePlayerNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInputPlayerName(event.target.value); // Update input state
-    };
-
-    // Update playerName state when Enter key is pressed
-    const handlePlayerNameSubmit = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter") {
-            setPlayerName(inputPlayerName); // Set player name
-        }
+    // Handle changes to the season dropdown
+    const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setTeamName(event.target.value); // Update Team state
     };
 
     // Handle changes to the season dropdown
@@ -77,25 +129,53 @@ const ShotChartPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
-            {/* Player Name Input */}
-            <div style={{ marginBottom: "1rem" }}>
-                <label htmlFor="player-name" style={{ marginRight: "1rem" }}>
-                    Player Name:
+            {/* team Name dropdown */}
+            <div style={{ marginBottom: "2rem" }}>
+                <label htmlFor="team-name" style={{ marginRight: "1rem" }}>
+                    Team Name:
                 </label>
-                <input
-                    id="player-name"
-                    type="text"
-                    value={inputPlayerName}
-                    onChange={handlePlayerNameChange}
-                    onKeyDown={handlePlayerNameSubmit}
-                    placeholder="Enter player name"
+                <select
+                    id="team-name"
+                    value={team}
+                    onChange={handleTeamChange}
                     style={{
                         padding: "0.5rem",
                         fontSize: "1rem",
-                        width: "300px",
                     }}
-                />
+                >
+                    {teams.map((s) => (
+                        <option key={s} value={s}>
+                            {s}
+                        </option>
+                    ))}
+                </select>
             </div>
+
+            {/* Player Dropdown */}
+            <div style={{ marginBottom: "2rem" }}>
+                <label htmlFor="player-select" style={{ marginRight: "1rem" }}>
+                    Player:
+                </label>
+                <select
+                    id="player-select"
+                    value={inputPlayerName}
+                    onChange={(e) => {
+                        setInputPlayerName(e.target.value);
+                        setPlayerName(e.target.value);
+                    }}
+                    style={{
+                        padding: "0.5rem",
+                        fontSize: "1rem",
+                    }}
+                >
+                    {playersOnTeam.map((player) => (
+                        <option key={player} value={player}>
+                            {player}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
 
             {/* Season Dropdown */}
             <div style={{ marginBottom: "2rem" }}>

@@ -2,6 +2,10 @@
 .shot-chart-svg {
     border: 2px solid #ccc;
     background-color: #f9f9f9;
+    background-image: url('../halfcourt.jpg'); 
+    background-size: cover;        
+    background-position: center;   
+    background-repeat: no-repeat;           
     border-radius: 8px;
 }
 

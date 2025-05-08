@@ -13,6 +13,38 @@ CORS(app)  # Enable CORS for all routes
 def get_player_id(name):
     return players.find_players_by_full_name(name)[0]['id']
 
+@app.route('/team-players', methods=['GET'])
+def get_team_players():
+    team_name = request.args.get('team_name')
+    season = request.args.get('season', '2024-25')
+
+    if not team_name:
+        return jsonify({"error": "team_name is required"}), 400
+
+    try:
+        # Find the team dictionary from the static teams list
+        team_list = teams.get_teams()
+        team_info = next((team for team in team_list if team['full_name'] == team_name), None)
+
+        if not team_info:
+            return jsonify({"error": "Invalid team name"}), 400
+
+        team_abbr = team_info['abbreviation']
+
+        # Get league-wide player logs to filter players by team and season
+        league_log = LeagueGameLog(season=season, season_type_all_star='Regular Season', player_or_team_abbreviation='P')
+        df = league_log.get_data_frames()[0]
+
+        # Filter to only include players from this team
+        df_team_players = df[df['TEAM_ABBREVIATION'] == team_abbr]
+
+        # Get unique player names
+        unique_players = df_team_players['PLAYER_NAME'].unique().tolist()
+
+        return jsonify(unique_players)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/player-plus-minus', methods=['GET'])
 def get_player_plus_minus():
