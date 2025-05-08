@@ -58,7 +58,7 @@ export default function FilterableTextField(
                                               optionKeyValueNames.key === "PLAYER_ID" ?
                                       option : option[optionKeyValueNames.key]
                                               , variableName)
-                                          setInputValue(option[optionKeyValueNames.value])
+                                          setInputValue("")
                                           setFilteredOptions([])
                                       }
                             }>

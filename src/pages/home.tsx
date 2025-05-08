@@ -44,6 +44,7 @@ function Home(){
                 break;
             case "addNewPlayer":
                 console.log("add player "+value)
+                if(!players.includes(value))
                 setPlayers([...players,value])
                 break
             case "removeTeam":
@@ -78,15 +79,21 @@ function Home(){
                 <div>
                     {
                         comparingTeams ?
-                            <FilterableTextField fieldName="Search and add teams" list={allTeams}
-                                                 onChange={handleToggleChange}
-                                                 variableName="team1"
-                                                 disable={isLoadingTeams}/>
+                            <FilterableTextField fieldName={
+                                teams.length > 5 ?
+                                "Limit reached"
+                                :"Search and add teams"}
+                                 list={allTeams}
+                                 onChange={handleToggleChange}
+                                 variableName="team1"
+                                 disable={isLoadingTeams || teams.length > 5}/>
                             :
-                            <FilterableTextField fieldName="Search and add players" list={allPlayers}
-                                                 onChange={handleToggleChange}
-                                                 variableName="addNewPlayer"
-                                                 disable={isPlayersLoading}/>
+                            <FilterableTextField
+                                fieldName="Search and add players"
+                                list={allPlayers}
+                                 onChange={handleToggleChange}
+                                 variableName="addNewPlayer"
+                                 disable={isPlayersLoading || players.length > 5}/>
                     }
 
                 </div>
@@ -106,7 +113,9 @@ function Home(){
                            onChange={handleToggleChange}
                            variableName="gameSituation"/>
                 <br/>
-                <div>
+
+                {/*LIST OF SELECTED PLAYERS*/}
+                <div style={{display:"flex",gap:"0.2rem",flexWrap:"wrap"}}>
                     {comparingTeams ? teams.map((team,index)=>
                         <div key={index}
                              style={{backgroundColor:PLAYER_GRAPH_COLORS[index],
@@ -136,6 +145,8 @@ function Home(){
                         </div>)
                     }
                 </div>
+
+
                 <br/>
                 {(gameSituation === "Quarters" || !gameSituation) &&
                     <ToggleBar isVertical={false} values={QUARTERS}

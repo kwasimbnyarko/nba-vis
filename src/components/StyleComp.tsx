@@ -16,6 +16,8 @@ interface StyleCompProps {
 }
 const StyleComp = ({
                        players,
+                        teams,
+                        isComparingTeams,
                       gameSituation, quarter, statCategory,
                     }:StyleCompProps) => {
 
@@ -73,7 +75,6 @@ const StyleComp = ({
 
         return (
         <div>
-            <RadarChart allPlayerData={allPlayerData}/>
             <RadarChart allPlayerData={allPlayerData}/>
         </div>
     )
