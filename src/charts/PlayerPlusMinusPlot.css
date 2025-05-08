@@ -1,0 +1,77 @@
+/* General styles for the chart */
+.chart-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
+.axis-label {
+    font-size: 14px;
+    fill: black;
+    text-anchor: middle;
+}
+
+/* Gridlines */
+.grid-line {
+    stroke: #e0e0e0;
+    stroke-dasharray: 4;
+    stroke-width: 0.3;
+}
+
+/* Quadrant lines */
+.quadrant-line {
+    stroke: black;
+    stroke-width: 2; 
+    stroke-dasharray: none;
+}
+
+/* Chart border */
+.chart-border {
+    stroke: black;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Legend styles */
+.legend-box {
+    fill: white;
+    stroke: black;
+    stroke-width: 1;
+    rx: 4;
+    ry: 4;
+}
+
+.legend-label {
+    font-size: 12px;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
+.legend-item {
+    font-size: 12px;
+}
+
+.circle-win {
+    fill: #38761D;
+}
+
+.circle-loss {
+    fill: #CC0000;
+}
+
+/* Subsection labels */
+.label-box {
+    fill: white;
+    stroke: black;
+    stroke-width: 0.5;
+    opacity: 0.5;
+    rx: 4;
+    ry: 4;
+}
+
+.label-text {
+    font-size: 12px;
+    font-weight: bold;
+    fill: black;
+    text-anchor: middle;
+}

@@ -3,6 +3,9 @@ import './App.css';
 import {Route,BrowserRouter as Router, Routes, useLocation} from "react-router-dom";
 import Home from "./pages/home"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import PlayerPlusMinusPage from "./pages/PlayerPlusMinusPage";
+import ShotChartPage from "./pages/ShotChartPage";
+import LeaguePlusMinusPage from "./pages/LeaguePlusMinusPage";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -23,6 +26,9 @@ function App() {
             </header>
             <Routes>
                 <Route path='/' element={<Home/>}/>
+                <Route path="/player-plus-minus" element={<PlayerPlusMinusPage />} />
+                <Route path="/shot-chart" element={<ShotChartPage />} />
+                <Route path="/league-plus-minus" element={<LeaguePlusMinusPage />} />
             </Routes>
         </Router>
     </QueryClientProvider>
