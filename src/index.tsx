@@ -4,13 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { TeamsProvider } from "./context/TeamsContext";
+import { SeasonsProvider } from "./context/SeasonsContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <TeamsProvider>
-    <App />
+    <SeasonsProvider>
+      <App />
+    </SeasonsProvider>
   </TeamsProvider>
 );
 

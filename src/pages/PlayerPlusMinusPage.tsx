@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import PlusMinusPlot from "../charts/PlayerPlusMinusPlot";
 import axios from "axios";
+import { useSeasons } from "../context/SeasonsContext";
 
 const PlayerPlusMinusPage: React.FC = () => {
     // State variables for data, loading, error, player name, and season
@@ -13,6 +14,9 @@ const PlayerPlusMinusPage: React.FC = () => {
     const [playerName, setPlayerName] = useState<string | null>(null);
     const [season, setSeason] = useState<string>("2024-25");
     const [inputPlayerName, setInputPlayerName] = useState<string>("");
+
+    // Access seasons from context
+    const { seasons, loading: seasonsLoading, error: seasonsError } = useSeasons();
 
     // Extract query parameters from the URL
     const location = useLocation();
@@ -31,19 +35,6 @@ const PlayerPlusMinusPage: React.FC = () => {
         }
     }, [queryPlayerName, querySeason]);
 
-    // List of available seasons
-    const seasons = [
-        "2024-25",
-        "2023-24",
-        "2022-23",
-        "2021-22",
-        "2020-21",
-        "2019-20",
-        "2018-19",
-        "2017-18",
-        "2016-17",
-        "2015-16"
-    ];
 
     // Fetch data from the backend API
     const fetchData = async () => {
@@ -108,6 +99,8 @@ const PlayerPlusMinusPage: React.FC = () => {
     };
 
     // Show loading or error messages if applicable
+    if (seasonsLoading) return <div>Loading seasons...</div>;
+    if (seasonsError) return <div>{seasonsError}</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
@@ -147,9 +140,9 @@ const PlayerPlusMinusPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
-                    {seasons.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
+                    {seasons.map((season) => (
+                        <option key={season} value={season}>
+                            {season}
                         </option>
                     ))}
                 </select>

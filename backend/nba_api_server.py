@@ -181,6 +181,24 @@ def get_teams():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/seasons', methods=['GET'])
+def get_seasons():
+    try:
+        current_year = pd.Timestamp.now().year
+
+        # If it's before October, the current season hasn't started yet
+        if pd.Timestamp.now().month < 10:
+            current_year -= 1
+
+        # Generate the last 10 seasons
+        seasons = [f"{year}-{str(year + 1)[-2:]}" for year in range(current_year - 9, current_year + 1)][::-1]
+
+        return jsonify(seasons)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/player-shot-chart', methods=['GET'])
 def get_shot_chart():
     # Get query parameters

@@ -3,6 +3,7 @@ import axios from "axios";
 import LeaguePlusMinusPlot from "../charts/LeaguePlusMinusPlot";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../context/TeamsContext";
+import { useSeasons } from "../context/SeasonsContext";
 
 const LeaguePlusMinusPage: React.FC = () => {
     // State variables for data, loading, error, and dropdown selections
@@ -12,24 +13,11 @@ const LeaguePlusMinusPage: React.FC = () => {
     const [season, setSeason] = useState("2024-25");
     const [team, setTeam] = useState("");
 
-    // Access teams from context
+    // Access teams and seasons from context
     const { teams, loading: teamsLoading, error: teamsError } = useTeams();
+    const { seasons, loading: seasonsLoading, error: seasonsError } = useSeasons();
 
     const navigate = useNavigate();
-
-    // List of available seasons. TODO don't hardcode
-    const seasons = [
-        "2024-25",
-        "2023-24",
-        "2022-23",
-        "2021-22",
-        "2020-21",
-        "2019-20",
-        "2018-19",
-        "2017-18",
-        "2016-17",
-        "2015-16",
-    ];
 
     // Fetch league plus-minus data
     const fetchData = async () => {
@@ -63,6 +51,8 @@ const LeaguePlusMinusPage: React.FC = () => {
     // Show loading or error messages if applicable
     if (teamsLoading) return <div>Loading teams...</div>;
     if (teamsError) return <div>{teamsError}</div>;
+    if (seasonsLoading) return <div>Loading seasons...</div>;
+    if (seasonsError) return <div>{seasonsError}</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
@@ -82,9 +72,9 @@ const LeaguePlusMinusPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
-                    {seasons.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
+                    {seasons.map((season) => (
+                        <option key={season} value={season}>
+                            {season}
                         </option>
                     ))}
                 </select>

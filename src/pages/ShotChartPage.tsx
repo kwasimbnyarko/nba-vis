@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ShotChartPlot from "../charts/ShotChartPlot";
 import axios from "axios";
 import { useTeams } from "../context/TeamsContext";
+import { useSeasons } from "../context/SeasonsContext";
 
 const ShotChartPage: React.FC = () => {
     // State variables for data, loading, error, team name, player name, and season
@@ -14,22 +15,9 @@ const ShotChartPage: React.FC = () => {
     const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
     const [playersOnTeam, setPlayersOnTeam] = useState<string[]>([]);
 
-    // Access teams from context
+    // Access teams and season from context
     const { teams, loading: teamsLoading, error: teamsError } = useTeams();
-
-    // List of available seasons
-    const seasons = [
-        "2024-25",
-        "2023-24",
-        "2022-23",
-        "2021-22",
-        "2020-21",
-        "2019-20",
-        "2018-19",
-        "2017-18",
-        "2016-17",
-        "2015-16"
-    ];
+    const { seasons, loading: seasonsLoading, error: seasonsError } = useSeasons();
 
     useEffect(() => {
         const fetchPlayers = async () => {
@@ -95,6 +83,8 @@ const ShotChartPage: React.FC = () => {
     // Show loading or error messages if applicable
     if (teamsLoading) return <div>Loading teams...</div>;
     if (teamsError) return <div>{teamsError}</div>;
+    if (seasonsLoading) return <div>Loading seasons...</div>;
+    if (seasonsError) return <div>{seasonsError}</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
@@ -162,9 +152,9 @@ const ShotChartPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
-                    {seasons.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
+                    {seasons.map((season) => (
+                        <option key={season} value={season}>
+                            {season}
                         </option>
                     ))}
                 </select>
