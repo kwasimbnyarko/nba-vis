@@ -11,8 +11,8 @@ const ShotChartPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [team, setTeamName] = useState<string>("Atlanta Hawks");
     const [season, setSeason] = useState<string>("2024-25");
-    const [playerName, setPlayerName] = useState<string>("Stephen Curry");
-    const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
+    const [playerName, setPlayerName] = useState<string | null>(null);
+    const [inputPlayerName, setInputPlayerName] = useState<string | null>(null);
     const [playersOnTeam, setPlayersOnTeam] = useState<string[]>([]);
 
     // Access teams and season from context
@@ -32,8 +32,8 @@ const ShotChartPage: React.FC = () => {
                 const players = response.data;
                 setPlayersOnTeam(players);
 
-                 // Only auto-set if current player is not in the new list
-                if (!players.includes(playerName)) {
+                // Auto-set the first player only if no player is selected
+                if (!playerName && players.length > 0) {
                     setInputPlayerName(players[0]);
                     setPlayerName(players[0]);
                 }
@@ -43,7 +43,13 @@ const ShotChartPage: React.FC = () => {
             }
         };
 
+        fetchPlayers();
+    }, [team, season]);
+
+    useEffect(() => {
         const fetchData = async () => {
+            if (!playerName) return; // Don't fetch data if no player is selected
+
             try {
                 setLoading(true);
                 setError(null);
@@ -66,18 +72,23 @@ const ShotChartPage: React.FC = () => {
             }
         };
 
-        fetchPlayers();
         fetchData();
-    }, [team, playerName, season]);
+    }, [playerName, season]);
 
     // Handle changes to the team dropdown
     const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setTeamName(event.target.value); // Update Team state
+        setPlayerName(null); // Reset player selection
+        setInputPlayerName(null); // Reset input player selection
+        setPlayersOnTeam([]); // Clear players list
     };
 
     // Handle changes to the season dropdown
     const handleSeasonChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSeason(event.target.value); // Update season state
+        setPlayerName(null); // Reset player selection
+        setInputPlayerName(null); // Reset input player selection
+        setPlayersOnTeam([]); // Clear players list
     };
 
     // Show loading or error messages if applicable
@@ -119,7 +130,7 @@ const ShotChartPage: React.FC = () => {
                 </label>
                 <select
                     id="player-select"
-                    value={inputPlayerName}
+                    value={inputPlayerName || ""}
                     onChange={(e) => {
                         setInputPlayerName(e.target.value);
                         setPlayerName(e.target.value);
@@ -129,6 +140,9 @@ const ShotChartPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
+                    <option value="" disabled>
+                        Select a player
+                    </option>
                     {playersOnTeam.map((player) => (
                         <option key={player} value={player}>
                             {player}
@@ -161,7 +175,7 @@ const ShotChartPage: React.FC = () => {
             </div>
 
             {/* ShotChartPlot Visualization */}
-            <ShotChartPlot data={data} width={800} height={600} />
+            {playerName && <ShotChartPlot data={data} width={800} height={600} />}
         </div>
     );
 };
