@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ShotChartPlot from "../charts/ShotChartPlot";
 import axios from "axios";
+import { useTeams } from "../context/TeamsContext";
 
 const ShotChartPage: React.FC = () => {
     // State variables for data, loading, error, team name, player name, and season
@@ -12,6 +13,9 @@ const ShotChartPage: React.FC = () => {
     const [playerName, setPlayerName] = useState<string>("Stephen Curry");
     const [inputPlayerName, setInputPlayerName] = useState<string>("Stephen Curry");
     const [playersOnTeam, setPlayersOnTeam] = useState<string[]>([]);
+
+    // Access teams from context
+    const { teams, loading: teamsLoading, error: teamsError } = useTeams();
 
     // List of available seasons
     const seasons = [
@@ -25,40 +29,6 @@ const ShotChartPage: React.FC = () => {
         "2017-18",
         "2016-17",
         "2015-16"
-    ];
-
-    // List of available teams
-    const teams = [
-        "Atlanta Hawks",
-        "Boston Celtics",
-        "Brooklyn Nets",
-        "Charlotte Hornets",
-        "Chicago Bulls",
-        "Cleveland Cavaliers",
-        "Dallas Mavericks",
-        "Denver Nuggets",
-        "Detroit Pistons",
-        "Golden State Warriors",
-        "Houston Rockets",
-        "Indiana Pacers",
-        "Los Angeles Clippers",
-        "Los Angeles Lakers",
-        "Memphis Grizzlies",
-        "Miami Heat",
-        "Milwaukee Bucks",
-        "Minnesota Timberwolves",
-        "New Orleans Pelicans",
-        "New York Knicks",
-        "Oklahoma City Thunder",
-        "Orlando Magic",
-        "Philadelphia 76ers",
-        "Phoenix Suns",
-        "Portland Trail Blazers",
-        "Sacramento Kings",
-        "San Antonio Spurs",
-        "Toronto Raptors",
-        "Utah Jazz",
-        "Washington Wizards",
     ];
 
     useEffect(() => {
@@ -79,7 +49,6 @@ const ShotChartPage: React.FC = () => {
                     setInputPlayerName(players[0]);
                     setPlayerName(players[0]);
                 }
-    
             } catch (err) {
                 console.error("Error fetching players:", err);
                 setPlayersOnTeam([]);
@@ -113,7 +82,7 @@ const ShotChartPage: React.FC = () => {
         fetchData();
     }, [team, playerName, season]);
 
-    // Handle changes to the season dropdown
+    // Handle changes to the team dropdown
     const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setTeamName(event.target.value); // Update Team state
     };
@@ -124,6 +93,8 @@ const ShotChartPage: React.FC = () => {
     };
 
     // Show loading or error messages if applicable
+    if (teamsLoading) return <div>Loading teams...</div>;
+    if (teamsError) return <div>{teamsError}</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
@@ -143,9 +114,9 @@ const ShotChartPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
-                    {teams.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
+                    {teams.map((t) => (
+                        <option key={t.abbreviation} value={t.name}>
+                            {t.name}
                         </option>
                     ))}
                 </select>
