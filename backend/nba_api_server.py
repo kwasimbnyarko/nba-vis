@@ -39,7 +39,7 @@ def get_team_players():
         df_team_players = df[df['TEAM_ABBREVIATION'] == team_abbr]
 
         # Get unique player names
-        unique_players = df_team_players['PLAYER_NAME'].unique().tolist()
+        unique_players = sorted(df_team_players['PLAYER_NAME'].unique().tolist())
 
         return jsonify(unique_players)
 
