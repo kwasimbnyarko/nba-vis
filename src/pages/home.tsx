@@ -14,8 +14,6 @@ import {getAllPlayers, myGetAllTeams} from "../services/myServerCalls";
 
 function Home(){
 
-    // const [teamId, setTeamId] = useState<any>(null)
-
     //The negative implies "Comparing Players"
     const [comparingTeams, setComparingTeams] = useState<boolean>(false)
 
@@ -28,7 +26,6 @@ function Home(){
 
 
     const handleToggleChange = (value: any,variableName:string) => {
-        console.log('New selected value:', value);
         switch(variableName){
             case "gameSituation":
                 setGameSituation(value)
@@ -40,15 +37,13 @@ function Home(){
                 setStatCategory(value)
                 break;
             case "addTeam":
-                setTeams(value)
+                if (!teams.includes(value))
+                setTeams([...teams, value])
                 break;
             case "addNewPlayer":
-                console.log("add player "+value)
                 if(!players.includes(value))
                 setPlayers([...players,value])
                 break
-            case "removeTeam":
-                // setTeams()
             case "playerOrTeam":
                 setComparingTeams(value.toLowerCase().includes("team"))
                 break
@@ -74,100 +69,134 @@ function Home(){
         <div className="play-style-section" style={{padding:"5rem"}}>
             <Typography variant="h3">Play Style</Typography>
 
-            <div className="player-team-selection-area"
-                 style={{display:"flex", justifyContent:"space-around"}}>
+
+            {/*CONTROLS*/}
+            <div
+            style={{display:"flex",justifyContent:"space-around"}}
+            >
+                {/*PLAYER SEARCH AND MODE SELECTION*/}
                 <div>
-                    {
-                        comparingTeams ?
-                            <FilterableTextField fieldName={
-                                teams.length > 5 ?
-                                "Limit reached"
-                                :"Search and add teams"}
-                                 list={allTeams}
-                                 onChange={handleToggleChange}
-                                 variableName="team1"
-                                 disable={isLoadingTeams || teams.length > 5}/>
-                            :
-                            <FilterableTextField
-                                fieldName="Search and add players"
-                                list={allPlayers}
-                                 onChange={handleToggleChange}
-                                 variableName="addNewPlayer"
-                                 disable={isPlayersLoading || players.length > 5}/>
-                    }
+                    <div className="player-team-selection-area"
+                         style={{display: "flex", justifyContent: "space-around"}}>
+                        <div>
+                            {
+                                comparingTeams ?
+                                    <FilterableTextField fieldName={
+                                        teams.length > 5 ?
+                                            "Limit reached"
+                                            : "Search and add teams"}
+                                                         list={allTeams}
+                                                         onChange={handleToggleChange}
+                                                         variableName="addTeam"
+                                                         disable={isLoadingTeams || teams.length > 5}/>
+                                    :
+                                    <FilterableTextField
+                                        fieldName="Search and add players"
+                                        list={allPlayers}
+                                        onChange={handleToggleChange}
+                                        variableName="addNewPlayer"
+                                        disable={isPlayersLoading || players.length > 5}/>
+                            }
 
+                        </div>
+
+                    </div>
+
+
+                    <div style={{
+                        display: "flex", flexDirection: "column",
+                        alignItems: "center"
+                    }}>
+                        <ToggleBar isVertical={false}
+                                   values={["Compare Players", "Compare Teams"]}
+                                   onChange={handleToggleChange}
+                                   variableName="playerOrTeam"/>
+                        <br/>
+                        <ToggleBar isVertical={false} values={GAME_SITUATIONS}
+                                   onChange={handleToggleChange}
+                                   variableName="gameSituation"/>
+
+                    </div>
+
+                </div>
+
+                <div>
+                    {/*LIST OF SELECTED PLAYERS*/}
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: "0.2rem",
+                            flexWrap: "wrap",
+                            height:"fit-content",
+                            width:"20rem"
+                        }}>
+                        {comparingTeams
+                            ? teams.map((team, index) =>
+                                <div key={index}
+                                     style={{
+                                         backgroundColor: PLAYER_GRAPH_COLORS[index],
+                                         padding: "0.5rem",
+                                         borderRadius: "2rem",
+                                         display: "flex"
+                                     }}>
+                                    {team.name}
+                                    <div
+                                        style={{
+                                            paddingLeft: "1rem",
+                                            cursor: "pointer"
+                                        }}
+                                        onClick={() => {
+                                            console.log(teams)
+                                            setTeams(teams.filter(t => t !== team))
+                                        }}>x
+                                    </div>
+                                </div>)
+                            : players.map((player, index) =>
+                                <div key={index}
+                                     style={{
+                                         backgroundColor: PLAYER_GRAPH_COLORS[index],
+                                         padding: "0.5rem",
+                                         borderRadius: "2rem",
+                                         display: "flex"
+                                     }}>
+                                    {player.PLAYER_NAME}
+                                    <div
+                                        style={{
+                                            paddingLeft: "1rem",
+                                            cursor: "pointer"
+                                        }}
+                                        onClick={() => {
+                                            setPlayers(players.filter(p => p !== player))
+                                        }}>x
+                                    </div>
+                                </div>)
+                        }
+                    </div>
+                    <br/>
+                    {(gameSituation === "Quarters" || !gameSituation) &&
+                        <ToggleBar isVertical={false} values={QUARTERS}
+                                   onChange={handleToggleChange}
+                                   variableName="quarter"
+                        />}
                 </div>
 
             </div>
 
 
             <div style={{
-                display: "flex", flexDirection: "column",
-                alignItems: "center"}}>
-                <ToggleBar isVertical={false}
-                           values={["Compare Players","Compare Teams"]}
-                           onChange={handleToggleChange}
-                           variableName="playerOrTeam"/>
-                <br/>
-                <ToggleBar isVertical={false} values={GAME_SITUATIONS}
-                           onChange={handleToggleChange}
-                           variableName="gameSituation"/>
-                <br/>
-
-                {/*LIST OF SELECTED PLAYERS*/}
-                <div style={{display:"flex",gap:"0.2rem",flexWrap:"wrap"}}>
-                    {comparingTeams ? teams.map((team,index)=>
-                        <div key={index}
-                             style={{backgroundColor:PLAYER_GRAPH_COLORS[index],
-                                 padding:"0.5rem",
-                                 borderRadius:"2rem"}}>
-                            {team.TEAM_NAME}
-
-                            <p onClick={()=>{
-                                setTeams(teams.filter(t=>t !== team))
-                            }}>x</p>
-                        </div>):  players.map((player,index)=>
-                        <div key={index}
-                             style={{
-                                 backgroundColor: PLAYER_GRAPH_COLORS[index],
-                                 padding: "0.5rem",
-                                 borderRadius: "2rem",
-                                 display:"flex"
-                             }}>
-                            {player.PLAYER_NAME}
-
-                            <div
-                            style={{paddingLeft:"1rem", cursor:"pointer"}}
-                                onClick={() => {
-                                console.log("ha")
-                                setPlayers(players.filter(p => p !== player))
-                            }}>X</div>
-                        </div>)
-                    }
-                </div>
-
-
-                <br/>
-                {(gameSituation === "Quarters" || !gameSituation) &&
-                    <ToggleBar isVertical={false} values={QUARTERS}
-                               onChange={handleToggleChange}
-                               variableName="quarter"/>}
-            </div>
-
-            <br/>
-
-
-            <div style={{
-                display:"flex", alignItems:"center",
-                justifyContent:"space-evenly"}}>
+                display: "flex", alignItems: "center",
+                justifyContent: "space-evenly"
+            }}>
                 <ToggleBar isVertical={true} values={STAT_CATEGORIES}
                            onChange={handleToggleChange}
                            variableName="statCategory"/>
-                { (players.length) &&
+                {(players.length || teams.length) ?
                     <StyleComp players={players} gameSituation={gameSituation}
-                               teams = {teams} isComparingTeams={comparingTeams}
-                                quarter={quarter} statCategory={statCategory}
-                                dimensions={500}/>}
+                               teams={teams} isComparingTeams={comparingTeams}
+                               quarter={quarter} statCategory={statCategory}
+                               dimensions={500}/>
+                :<div style={{width:500}}></div>
+                }
             </div>
         </div>
 

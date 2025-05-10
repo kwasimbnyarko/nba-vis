@@ -35,10 +35,9 @@ const RadarChart = ({
     useEffect(() => {
         if (allPlayerData.pending || !data || !data.length || !data[0].stats?.length) return;
 
-        // if (allPlayerData.pending || !allPlayerData.data.length) return;
-        // console.log(data.data)
-        // if (!data?.length) return;
+        console.log(data)
 
+        
         const statCount = data[0].stats.length;
         const radius = dimensions / 2 - 40;
         const levels = 5;
@@ -129,7 +128,6 @@ const RadarChart = ({
                 .on("mouseover", function (event, d) {
                     const [x, y] = d3.pointer(event, svgRef.current);
 
-                    console.log(player)
                     tooltip
                         .style("display", "block")
                         .html(`

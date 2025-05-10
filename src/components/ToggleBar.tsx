@@ -13,7 +13,6 @@ variableName:string}) {
         event: React.MouseEvent<HTMLElement>,
         newValue: string,
     ) => {
-        console.log(newValue)
         if (newValue !== null) {
             setSelectedValue(newValue);
             onChange(newValue, variableName)

@@ -16,3 +16,8 @@ export const myServer = axios.create({
     baseURL: 'http://localhost:3030/',
     timeout: 10000
 })
+
+export const nbaApiClient = axios.create({
+    baseURL: 'http://localhost:5000/',
+    timeout: 10000
+})

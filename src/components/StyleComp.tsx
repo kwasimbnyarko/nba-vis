@@ -14,11 +14,14 @@ interface StyleCompProps {
     statCategory:string,
     dimensions:number
 }
+
+
 const StyleComp = ({
                        players,
                         teams,
                         isComparingTeams,
-                      gameSituation, quarter, statCategory,
+                        gameSituation,
+                       quarter, statCategory,
                     }:StyleCompProps) => {
 
     /*
@@ -43,22 +46,53 @@ const StyleComp = ({
  *  - Contests
  * */
 
-    // getPlayerOrTeamStats(players[0].playerId,0,"off",0).then(r => console.log(r))
-
-
+    const allTeamData = useQueries({
+        queries: teams.map(team => ({
+            enabled: !!teams.length,
+            queryKey: [
+                "teamData",
+                team.id,
+                statCategory,
+                gameSituation,
+                QUARTERS.indexOf(quarter)],
+            queryFn: async () => {
+                console.log(teams)
+                const tStats = await
+                    getPlayerOrTeamStats(
+                        0,
+                        team.id,
+                        statCategory,
+                        gameSituation,
+                        QUARTERS.indexOf(quarter))
+                console.log(tStats)
+                return {fullName: team.name, stats: tStats}
+            },
+            staleTime: Infinity
+        })),
+        combine: (results) => {
+            return {
+                data: results.map(r => r.data),
+                pending: results.some(r => r.isPending)
+            }
+        }
+    })
 
     const allPlayerData = useQueries({
         queries: players.map(player => ({
+            enabled: !!players.length,
             queryKey: [
                 "playerData",
                 player.PLAYER_ID,
-                statCategory,QUARTERS.indexOf(quarter)],
+                statCategory,
+                gameSituation,
+                QUARTERS.indexOf(quarter)],
             queryFn: async () => {
                 const pStats = await
                     getPlayerOrTeamStats(
                         player.PLAYER_ID,
                         0,
                         statCategory,
+                    gameSituation,
                     QUARTERS.indexOf(quarter))
                 console.log(pStats)
                 return {fullName: player.PLAYER_NAME, stats: pStats}
@@ -75,7 +109,11 @@ const StyleComp = ({
 
         return (
         <div>
-            <RadarChart allPlayerData={allPlayerData}/>
+            <RadarChart allPlayerData={
+                isComparingTeams ?
+                    allTeamData :
+                    allPlayerData
+            }/>
         </div>
     )
 };

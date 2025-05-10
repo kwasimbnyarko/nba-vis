@@ -106,5 +106,9 @@ export const DISPLAY_NAME_N_DESC = {
     PLAYER_NAME: {
         fullname: "Player Name",
         desc: "The full name of the player."
+    },
+    FTM: {
+        fullname: "Free Throws Made",
+        desc: "The number of free throw made per game"
     }
 };
