@@ -3,7 +3,6 @@ from flask_cors import CORS
 from nba_api.stats.endpoints import PlayerGameLog, LeagueGameLog, ShotChartDetail
 from nba_api.stats.static import players, teams
 import pandas as pd
-import numpy as np
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -104,22 +103,7 @@ def get_player_plus_minus():
             team_results = merged[['GAME_DATE', 'MATCHUP', 'WL', 'PLUS_MINUS', 'TEAM_PTS', 'PTS_OPP', 'POINT_DIFF']].to_dict(orient='records')
             results.extend(team_results)
 
-        # Calculate the best fit line
-        if results:
-            df = pd.DataFrame(results)
-            x = df['PLUS_MINUS']
-            y = df['POINT_DIFF']
-            m, b = np.polyfit(x, y, 1)
-        else:
-            m, b = None, None
-
-        return jsonify({
-            "data": results,
-            "best_fit_line": {
-                "slope": m,
-                "intercept": b
-            }
-        })
+        return jsonify(results)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

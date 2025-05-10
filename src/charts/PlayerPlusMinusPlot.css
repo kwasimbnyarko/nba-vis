@@ -51,14 +51,6 @@
     font-size: 12px;
 }
 
-.circle-win {
-    fill: #38761D;
-}
-
-.circle-loss {
-    fill: #CC0000;
-}
-
 /* Subsection labels */
 .label-box {
     fill: white;
