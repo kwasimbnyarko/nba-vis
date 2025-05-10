@@ -12,6 +12,7 @@ CORS(app)  # Enable CORS for all routes
 def get_player_id(name):
     return players.find_players_by_full_name(name)[0]['id']
 
+
 @app.route('/team-players', methods=['GET'])
 def get_team_players():
     team_name = request.args.get('team_name')
@@ -211,10 +212,42 @@ def get_shot_chart():
         # Extract the data frame
         shot_df = shot_chart.get_data_frames()[0]
 
-        # Convert to JSON
-        shot_data = shot_df.to_dict(orient='records')
+        # Calculate shooting percentages by zone
+        # Group by SHOT_ZONE_BASIC
+        zone_basic = shot_df.groupby('SHOT_ZONE_BASIC').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_basic['shooting_percentage'] = (zone_basic['made_shots'] / zone_basic['attempted_shots']) * 100
 
-        return jsonify(shot_data)
+        # Group by SHOT_ZONE_AREA
+        zone_area = shot_df.groupby('SHOT_ZONE_AREA').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_area['shooting_percentage'] = (zone_area['made_shots'] / zone_area['attempted_shots']) * 100
+
+        # Group by SHOT_ZONE_RANGE
+        zone_range = shot_df.groupby('SHOT_ZONE_RANGE').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_range['shooting_percentage'] = (zone_range['made_shots'] / zone_range['attempted_shots']) * 100
+
+        # Combine all breakdowns into a single dictionary
+        shooting_percentages = {
+            "zone_basic": zone_basic.to_dict(orient='records'),
+            "zone_area": zone_area.to_dict(orient='records'),
+            "zone_range": zone_range.to_dict(orient='records'),
+        }
+
+        # Combine raw shot data and shooting percentages in the response
+        response = {
+            "shot_data": shot_df.to_dict(orient='records'),
+            "shooting_percentages": shooting_percentages
+        }
+
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
