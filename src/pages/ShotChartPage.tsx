@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ShotChartPlot from "../charts/ShotChartPlot";
+import ShotChartTable from "../charts/ShotChartTable";
 import axios from "axios";
 import { useTeams } from "../context/TeamsContext";
 import { useSeasons } from "../context/SeasonsContext";
@@ -7,6 +8,11 @@ import { useSeasons } from "../context/SeasonsContext";
 const ShotChartPage: React.FC = () => {
     // State variables for data, loading, error, team name, player name, and season
     const [data, setData] = useState<{ LOC_X: number; LOC_Y: number; SHOT_MADE_FLAG: number }[]>([]);
+    const [shootingPercentages, setShootingPercentages] = useState<{
+        zone_basic: { SHOT_ZONE_BASIC: string; attempted_shots: number; made_shots: number; shooting_percentage: number }[];
+        zone_area: { SHOT_ZONE_AREA: string; attempted_shots: number; made_shots: number; shooting_percentage: number }[];
+        zone_range: { SHOT_ZONE_RANGE: string; attempted_shots: number; made_shots: number; shooting_percentage: number }[];
+    } | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [team, setTeamName] = useState<string>("Atlanta Hawks");
@@ -61,9 +67,10 @@ const ShotChartPage: React.FC = () => {
                         season: season,
                     },
                 });
-    
-                // Update shot chart data
-                setData(response.data);
+
+                // Update shot chart data and shooting percentages
+                setData(response.data.shot_data);
+                setShootingPercentages(response.data.shooting_percentages);
             } catch (err) {
                 console.error("Error fetching data:", err);
                 setError("Failed to fetch data. Please try again later."); // Set error message
@@ -101,8 +108,8 @@ const ShotChartPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
-            {/* team Name dropdown */}
-            <div style={{ marginBottom: "2rem" }}>
+            {/* Team Name Dropdown */}
+            <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="team-name" style={{ marginRight: "1rem" }}>
                     Team Name:
                 </label>
@@ -124,7 +131,7 @@ const ShotChartPage: React.FC = () => {
             </div>
 
             {/* Player Dropdown */}
-            <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="player-select" style={{ marginRight: "1rem" }}>
                     Player:
                 </label>
@@ -151,9 +158,8 @@ const ShotChartPage: React.FC = () => {
                 </select>
             </div>
 
-
             {/* Season Dropdown */}
-            <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="season" style={{ marginRight: "1rem" }}>
                     Season:
                 </label>
@@ -176,6 +182,9 @@ const ShotChartPage: React.FC = () => {
 
             {/* ShotChartPlot Visualization */}
             {playerName && <ShotChartPlot data={data} width={800} height={600} />}
+
+            {/* Shooting Percentages Table */}
+            {shootingPercentages && <ShotChartTable shootingPercentages={shootingPercentages} />}
         </div>
     );
 };
