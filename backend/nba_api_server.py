@@ -6,7 +6,6 @@ from nba_api.stats.endpoints import PlayerGameLog, LeagueGameLog, \
 from nba_api.stats.static import players, teams
 from nba_api.stats.library.parameters import SeasonType, PerModeSimple
 import pandas as pd
-import numpy as np
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -47,7 +46,7 @@ def get_team_players():
         df_team_players = df[df['TEAM_ABBREVIATION'] == team_abbr]
 
         # Get unique player names
-        unique_players = df_team_players['PLAYER_NAME'].unique().tolist()
+        unique_players = sorted(df_team_players['PLAYER_NAME'].unique().tolist())
 
         return jsonify(unique_players)
 
@@ -120,29 +119,13 @@ def get_player_plus_minus():
             merged = pd.merge(player_team_df, team_df, on='GAME_ID')
             merged = pd.merge(merged, opp_df, on='GAME_ID')
             merged['POINT_DIFF'] = merged['TEAM_PTS'] - merged['PTS_OPP']
+            merged['FINAL_SCORE'] = merged['TEAM_PTS'].astype(str) + "-" + merged['PTS_OPP'].astype(str)
 
             # Convert to JSON and append to results
-            team_results = merged[
-                ['GAME_DATE', 'MATCHUP', 'WL', 'PLUS_MINUS', 'TEAM_PTS',
-                 'PTS_OPP', 'POINT_DIFF']].to_dict(orient='records')
+            team_results = merged[['GAME_DATE', 'MATCHUP', 'WL', 'PLUS_MINUS', 'POINT_DIFF', 'FINAL_SCORE']].to_dict(orient='records')
             results.extend(team_results)
 
-        # Calculate the best fit line
-        if results:
-            df = pd.DataFrame(results)
-            x = df['PLUS_MINUS']
-            y = df['POINT_DIFF']
-            m, b = np.polyfit(x, y, 1)
-        else:
-            m, b = None, None
-
-        return jsonify({
-            "data": results,
-            "best_fit_line": {
-                "slope": m,
-                "intercept": b
-            }
-        })
+        return jsonify(results)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -214,6 +197,24 @@ def get_teams():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/seasons', methods=['GET'])
+def get_seasons():
+    try:
+        current_year = pd.Timestamp.now().year
+
+        # If it's before October, the current season hasn't started yet
+        if pd.Timestamp.now().month < 10:
+            current_year -= 1
+
+        # Generate the last 10 seasons
+        seasons = [f"{year}-{str(year + 1)[-2:]}" for year in range(current_year - 9, current_year + 1)][::-1]
+
+        return jsonify(seasons)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/player-shot-chart', methods=['GET'])
 def get_shot_chart():
     # Get query parameters
@@ -240,10 +241,42 @@ def get_shot_chart():
         # Extract the data frame
         shot_df = shot_chart.get_data_frames()[0]
 
-        # Convert to JSON
-        shot_data = shot_df.to_dict(orient='records')
+        # Calculate shooting percentages by zone
+        # Group by SHOT_ZONE_BASIC
+        zone_basic = shot_df.groupby('SHOT_ZONE_BASIC').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_basic['shooting_percentage'] = (zone_basic['made_shots'] / zone_basic['attempted_shots']) * 100
 
-        return jsonify(shot_data)
+        # Group by SHOT_ZONE_AREA
+        zone_area = shot_df.groupby('SHOT_ZONE_AREA').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_area['shooting_percentage'] = (zone_area['made_shots'] / zone_area['attempted_shots']) * 100
+
+        # Group by SHOT_ZONE_RANGE
+        zone_range = shot_df.groupby('SHOT_ZONE_RANGE').agg(
+            attempted_shots=('SHOT_ATTEMPTED_FLAG', 'sum'),
+            made_shots=('SHOT_MADE_FLAG', 'sum')
+        ).reset_index()
+        zone_range['shooting_percentage'] = (zone_range['made_shots'] / zone_range['attempted_shots']) * 100
+
+        # Combine all breakdowns into a single dictionary
+        shooting_percentages = {
+            "zone_basic": zone_basic.to_dict(orient='records'),
+            "zone_area": zone_area.to_dict(orient='records'),
+            "zone_range": zone_range.to_dict(orient='records'),
+        }
+
+        # Combine raw shot data and shooting percentages in the response
+        response = {
+            "shot_data": shot_df.to_dict(orient='records'),
+            "shooting_percentages": shooting_percentages
+        }
+
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

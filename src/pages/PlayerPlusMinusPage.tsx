@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import PlusMinusPlot from "../charts/PlayerPlusMinusPlot";
 import axios from "axios";
+import { useSeasons } from "../context/SeasonsContext";
 
 const PlayerPlusMinusPage: React.FC = () => {
     // State variables for data, loading, error, player name, and season
-    const [data, setData] = useState<{ x: number; y: number; win: boolean }[]>([]);
-    const [slope, setSlope] = useState<number>(0);
-    const [intercept, setIntercept] = useState<number>(0);
+    const [data, setData] = useState<{ x: number; y: number; win: boolean; GAME_DATE: string; MATCHUP: string; FINAL_SCORE: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [playerName, setPlayerName] = useState<string | null>(null);
     const [season, setSeason] = useState<string>("2024-25");
     const [inputPlayerName, setInputPlayerName] = useState<string>("");
+
+    // Access seasons from context
+    const { seasons, loading: seasonsLoading, error: seasonsError } = useSeasons();
 
     // Extract query parameters from the URL
     const location = useLocation();
@@ -31,19 +33,6 @@ const PlayerPlusMinusPage: React.FC = () => {
         }
     }, [queryPlayerName, querySeason]);
 
-    // List of available seasons
-    const seasons = [
-        "2024-25",
-        "2023-24",
-        "2022-23",
-        "2021-22",
-        "2020-21",
-        "2019-20",
-        "2018-19",
-        "2017-18",
-        "2016-17",
-        "2015-16"
-    ];
 
     // Fetch data from the backend API
     const fetchData = async () => {
@@ -64,19 +53,17 @@ const PlayerPlusMinusPage: React.FC = () => {
             });
 
             // Transform API response into scatter plot data
-            const scatterData = response.data.data.map((game: any) => ({
+            const scatterData = response.data.map((game: any) => ({
                 x: game.PLUS_MINUS, // Player Plus/Minus
                 y: game.POINT_DIFF, // Team Point Difference
                 win: game.WL === "W", // Win or Loss
+                GAME_DATE: game.GAME_DATE, // Game Date
+                MATCHUP: game.MATCHUP, // Matchup
+                FINAL_SCORE: game.FINAL_SCORE, // Final Score
             }));
-
-            // Extract slope and intercept from the API response
-            const { slope, intercept } = response.data.best_fit_line;
 
             // Update state
             setData(scatterData);
-            setSlope(slope);
-            setIntercept(intercept);
         } catch (err) {
             console.error("Error fetching data:", err);
             setError("Failed to fetch data. Please try again later."); // Set error message
@@ -108,6 +95,8 @@ const PlayerPlusMinusPage: React.FC = () => {
     };
 
     // Show loading or error messages if applicable
+    if (seasonsLoading) return <div>Loading seasons...</div>;
+    if (seasonsError) return <div>{seasonsError}</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
@@ -147,9 +136,9 @@ const PlayerPlusMinusPage: React.FC = () => {
                         fontSize: "1rem",
                     }}
                 >
-                    {seasons.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
+                    {seasons.map((season) => (
+                        <option key={season} value={season}>
+                            {season}
                         </option>
                     ))}
                 </select>
@@ -158,10 +147,8 @@ const PlayerPlusMinusPage: React.FC = () => {
             {/* PlusMinusPlot Scatter Plot */}
             <PlusMinusPlot
                 data={data}
-                width={800}
+                width={900}
                 height={600}
-                slope={slope}
-                intercept={intercept}
             />
         </div>
     );

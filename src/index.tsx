@@ -3,14 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { TeamsProvider } from "./context/TeamsContext";
+import { SeasonsProvider } from "./context/SeasonsContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <TeamsProvider>
+    <SeasonsProvider>
+      <App />
+    </SeasonsProvider>
+  </TeamsProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

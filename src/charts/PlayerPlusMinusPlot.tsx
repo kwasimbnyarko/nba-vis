@@ -4,15 +4,13 @@ import "./PlayerPlusMinusPlot.css"; // Import CSS for styling
 
 // Props interface for the PlayerPlusMinusPlot component
 interface PlayerPlusMinusPlotProps {
-    data: { x: number; y: number; win: boolean }[]; // Scatter plot data
-    slope: number; // Slope of the best fit line
-    intercept: number; // Intercept of the best fit line
+    data: { x: number; y: number; GAME_DATE: string; MATCHUP: string; FINAL_SCORE: string}[]; // Scatter plot data
     width: number; // Width of the chart
     height: number; // Height of the chart
 }
 
 // Main PlayerPlusMinusPlot component
-const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, intercept, width, height }) => {
+const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, height }) => {
     const ref = useRef<SVGSVGElement>(null); // Reference to the SVG element
 
     useEffect(() => {
@@ -20,7 +18,7 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
         svg.selectAll("*").remove(); // Clear previous renders
 
         // Chart dimensions and margins
-        const margin = { top: 60, right: 150, bottom: 50, left: 60 };
+        const margin = { top: 60, right: 180, bottom: 50, left: 60 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
@@ -42,6 +40,32 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
                 (d3.max(data, (d) => d.y) || 0) + yPadding,
             ])
             .range([innerHeight, 0]);
+
+        // Categorize data and assign colors
+        const categorizedData = data.map((d) => {
+            let category = "Neutral Impact";
+            let color = "gray";
+
+            if (d.y > 0 && d.x > d.y) {
+                category = "Caused Win";
+                color = "green";
+            } else if (d.y < 0 && d.x < d.y) {
+                category = "Caused Loss";
+                color = "red";
+            }
+
+            return { ...d, category, color };
+        });
+
+        // Count the number of points in each category
+        type Category = "Caused Win" | "Caused Loss" | "Neutral Impact";
+        const categoryCounts: Record<Category, number> = categorizedData.reduce(
+            (acc, d) => {
+                acc[d.category as Category] = (acc[d.category as Category] || 0) + 1;
+                return acc;
+            },
+            { "Caused Win": 0, "Caused Loss": 0, "Neutral Impact": 0 }
+        );
 
         // Create a group element for the chart
         const g = svg
@@ -109,20 +133,53 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
             .attr("x", width / 2)
             .attr("y", 30)
             .attr("class", "chart-title")
-            .text("Player vs Team Plus/Minus");
+            .text("Player vs Team Plus/Minus Impact");
+
+        // Add a tooltip div
+        const tooltip = d3
+            .select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "white")
+            .style("border", "1px solid #ccc")
+            .style("border-radius", "8px")
+            .style("padding", "10px")
+            .style("box-shadow", "0px 4px 6px rgba(0, 0, 0, 0.1)")
+            .style("pointer-events", "none")
+            .style("opacity", 0); // Initially hidden
 
         // Plot data points
         g.selectAll("circle")
-            .data(data)
+            .data(categorizedData)
             .enter()
             .append("circle")
             .attr("cx", (d) => x(d.x))
             .attr("cy", (d) => y(d.y))
             .attr("r", 6)
-            .attr("class", (d) => (d.win ? "circle-win" : "circle-loss"))
+            .attr("fill", (d) => d.color)
             .attr("stroke", "white")
             .attr("stroke-width", 1)
-            .attr("opacity", 0.9);
+            .attr("opacity", 0.9)
+            .on("mouseover", (event, d) => {
+                tooltip
+                    .style("opacity", 1)
+                    .html(
+                        `<strong>Date:</strong> ${d.GAME_DATE}<br>
+                        <strong>Matchup:</strong> ${d.MATCHUP}<br>
+                        <strong>Final Score:</strong> ${d.FINAL_SCORE}<br>
+                        <strong>Team Plus/Minus:</strong> ${d.y}<br>
+                        <strong>Player Plus/Minus:</strong> ${d.x}`
+                    );
+            })
+            .on("mousemove", (event) => {
+                tooltip
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY - 20}px`);
+            })
+            .on("mouseout", () => {
+                tooltip.style("opacity", 0);
+            });
 
         // Add subsection labels
         const xDomain = x.domain();
@@ -130,22 +187,22 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
 
         const labels = [
             {
-                text: "Team Good, Player Poor",
+                text: "Team Wins, Player Poor",
                 x: x((xDomain[0] + 0) / 2),
                 y: y((yDomain[1] + 0) / 2),
             },
             {
-                text: "Team & Player Good",
+                text: "Team Wins, Player Good",
                 x: x((0 + xDomain[1]) / 2),
                 y: y((yDomain[1] + 0) / 2),
             },
             {
-                text: "Both Performed Poorly",
+                text: "Team Loses, Player Poor",
                 x: x((xDomain[0] + 0) / 2),
                 y: y((0 + yDomain[0]) / 2),
             },
             {
-                text: "Player Good, Team Poor",
+                text: "Team Loses, Player Good",
                 x: x((0 + xDomain[1]) / 2),
                 y: y((0 + yDomain[0]) / 2),
             },
@@ -155,7 +212,7 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
             g.append("rect")
                 .attr("x", label.x - 70)
                 .attr("y", label.y - 15)
-                .attr("width", 140)
+                .attr("width", 141)
                 .attr("height", 25)
                 .attr("class", "label-box");
 
@@ -169,19 +226,19 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
         // Add legend
         const legend = svg
             .append("g")
-            .attr("transform", `translate(${width - 110},${margin.top})`);
+            .attr("transform", `translate(${width - 140},${margin.top})`);
 
         legend
             .append("rect")
             .attr("x", 0)
             .attr("y", -30)
-            .attr("width", 80)
-            .attr("height", 75)
+            .attr("width", 140)
+            .attr("height", 100)
             .attr("class", "legend-box");
 
         legend
             .append("text")
-            .attr("x", 40)
+            .attr("x", 60)
             .attr("y", -15)
             .attr("class", "legend-label")
             .text("Legend");
@@ -191,44 +248,48 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, slope, 
             .attr("cx", 10)
             .attr("cy", 10)
             .attr("r", 6)
-            .attr("class", "circle-win");
+            .attr("fill", "green");
 
         legend
             .append("text")
             .attr("x", 25)
             .attr("y", 14)
             .attr("class", "legend-item")
-            .text("Win");
+            .text(`Caused Win (${categoryCounts["Caused Win"]})`);
 
         legend
             .append("circle")
             .attr("cx", 10)
             .attr("cy", 30)
             .attr("r", 6)
-            .attr("class", "circle-loss");
+            .attr("fill", "red");
 
         legend
             .append("text")
             .attr("x", 25)
             .attr("y", 34)
             .attr("class", "legend-item")
-            .text("Loss");
+            .text(`Caused Loss (${categoryCounts["Caused Loss"]})`);
 
-        // Add the best fit line
-        const xStart = d3.min(data, (d) => d.x) || 0;
-        const xEnd = d3.max(data, (d) => d.x) || 0;
-        const yStart = slope * xStart + intercept;
-        const yEnd = slope * xEnd + intercept;
-        g.append("line")
-            .attr("x1", x(xStart))
-            .attr("y1", y(yStart))
-            .attr("x2", x(xEnd))
-            .attr("y2", y(yEnd))
-            .attr("class", "best-fit-line")
-            .attr("stroke", "blue")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5");
-    }, [data, slope, intercept, width, height]);
+        legend
+            .append("circle")
+            .attr("cx", 10)
+            .attr("cy", 50)
+            .attr("r", 6)
+            .attr("fill", "gray");
+
+        legend
+            .append("text")
+            .attr("x", 25)
+            .attr("y", 54)
+            .attr("class", "legend-item")
+            .text(`Neutral Impact (${categoryCounts["Neutral Impact"]})`);
+
+        // Clean up the tooltip on unmount
+        return () => {
+            tooltip.remove();
+        };
+    }, [data, width, height]);
 
     return <svg ref={ref} width={width} height={height}></svg>;
 };
