@@ -169,6 +169,13 @@ function RadarPage(){
                                     </div>
                                 </div>)
                         }
+                        <p>
+                            {comparingTeams?
+                                teams.length < 2 ? "Select at least 2 teams to compare" :""
+                                :
+                                players.length < 2 ? "Select at least 2 players to compare" : ""
+                            }
+                        </p>
                     </div>
                     <br/>
                     {(gameSituation === "Quarters" || !gameSituation) &&
