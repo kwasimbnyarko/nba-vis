@@ -108,6 +108,7 @@ const ShotChartPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
+            <h2 style={{textAlign:"center"}}>Shot Chart</h2>
             {/* Team Name Dropdown */}
             <div style={{ marginBottom: "0.5rem" }}>
                 <label htmlFor="team-name" style={{ marginRight: "1rem" }}>

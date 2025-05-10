@@ -12,7 +12,7 @@ import {
 import StyleComp from "../components/StyleComp";
 import {getAllPlayers, myGetAllTeams} from "../services/myServerCalls";
 
-function Home(){
+function RadarPage(){
 
     //The negative implies "Comparing Players"
     const [comparingTeams, setComparingTeams] = useState<boolean>(false)
@@ -67,9 +67,8 @@ function Home(){
     return (
     <div>
         <div className="play-style-section" style={{padding:"5rem"}}>
-            <Typography variant="h3">Play Style</Typography>
 
-
+            <h2 style={{textAlign:"center"}}>Play Style</h2>
             {/*CONTROLS*/}
             <div
             style={{display:"flex",justifyContent:"space-around"}}
@@ -146,7 +145,6 @@ function Home(){
                                             cursor: "pointer"
                                         }}
                                         onClick={() => {
-                                            console.log(teams)
                                             setTeams(teams.filter(t => t !== team))
                                         }}>x
                                     </div>
@@ -204,4 +202,4 @@ function Home(){
     );
 }
 
-export default Home;
+export default RadarPage;

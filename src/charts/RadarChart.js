@@ -35,9 +35,6 @@ const RadarChart = ({
     useEffect(() => {
         if (allPlayerData.pending || !data || !data.length || !data[0].stats?.length) return;
 
-        console.log(data)
-
-        
         const statCount = data[0].stats.length;
         const radius = dimensions / 2 - 40;
         const levels = 5;

@@ -68,9 +68,6 @@ export const getPlayerOrTeamStats = async (
                     quarter: !quarter ? "" : quarter
                 }
         })
-        console.log("fetching")
-        console.log(statCategory)
-        console.log(response.data)
 
         return Object.entries(response.data[0])
             .filter(([key]) => selectedCat.includes(key))

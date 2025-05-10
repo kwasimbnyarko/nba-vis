@@ -102,6 +102,7 @@ const PlayerPlusMinusPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
+            <h2 style={{textAlign:"center"}}>Player Plus Minus</h2>
             {/* Player Name Input */}
             <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="player-name" style={{ marginRight: "1rem" }}>

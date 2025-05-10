@@ -56,7 +56,6 @@ const StyleComp = ({
                 gameSituation,
                 QUARTERS.indexOf(quarter)],
             queryFn: async () => {
-                console.log(teams)
                 const tStats = await
                     getPlayerOrTeamStats(
                         0,
@@ -64,7 +63,6 @@ const StyleComp = ({
                         statCategory,
                         gameSituation,
                         QUARTERS.indexOf(quarter))
-                console.log(tStats)
                 return {fullName: team.name, stats: tStats}
             },
             staleTime: Infinity
@@ -94,7 +92,6 @@ const StyleComp = ({
                         statCategory,
                     gameSituation,
                     QUARTERS.indexOf(quarter))
-                console.log(pStats)
                 return {fullName: player.PLAYER_NAME, stats: pStats}
             },
             staleTime: Infinity
