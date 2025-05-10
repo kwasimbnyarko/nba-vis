@@ -6,7 +6,7 @@ import { useSeasons } from "../context/SeasonsContext";
 
 const PlayerPlusMinusPage: React.FC = () => {
     // State variables for data, loading, error, player name, and season
-    const [data, setData] = useState<{ x: number; y: number; win: boolean }[]>([]);
+    const [data, setData] = useState<{ x: number; y: number; win: boolean; GAME_DATE: string; MATCHUP: string; FINAL_SCORE: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [playerName, setPlayerName] = useState<string | null>(null);
@@ -57,6 +57,9 @@ const PlayerPlusMinusPage: React.FC = () => {
                 x: game.PLUS_MINUS, // Player Plus/Minus
                 y: game.POINT_DIFF, // Team Point Difference
                 win: game.WL === "W", // Win or Loss
+                GAME_DATE: game.GAME_DATE, // Game Date
+                MATCHUP: game.MATCHUP, // Matchup
+                FINAL_SCORE: game.FINAL_SCORE, // Final Score
             }));
 
             // Update state

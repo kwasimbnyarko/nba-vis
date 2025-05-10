@@ -4,15 +4,14 @@ import "./PlayerPlusMinusPlot.css"; // Import CSS for styling
 
 // Props interface for the PlayerPlusMinusPlot component
 interface PlayerPlusMinusPlotProps {
-    data: { x: number; y: number }[]; // Scatter plot data
+    data: { x: number; y: number; GAME_DATE: string; MATCHUP: string; FINAL_SCORE: string}[]; // Scatter plot data
     width: number; // Width of the chart
     height: number; // Height of the chart
 }
 
 // Main PlayerPlusMinusPlot component
 const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, height }) => {
-    const ref = useRef<SVGSVGElement>
-    (null); // Reference to the SVG element
+    const ref = useRef<SVGSVGElement>(null); // Reference to the SVG element
 
     useEffect(() => {
         const svg = d3.select(ref.current);
@@ -136,6 +135,20 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, 
             .attr("class", "chart-title")
             .text("Player vs Team Plus/Minus Impact");
 
+        // Add a tooltip div
+        const tooltip = d3
+            .select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "white")
+            .style("border", "1px solid #ccc")
+            .style("border-radius", "8px")
+            .style("padding", "10px")
+            .style("box-shadow", "0px 4px 6px rgba(0, 0, 0, 0.1)")
+            .style("pointer-events", "none")
+            .style("opacity", 0); // Initially hidden
+
         // Plot data points
         g.selectAll("circle")
             .data(categorizedData)
@@ -147,7 +160,26 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, 
             .attr("fill", (d) => d.color)
             .attr("stroke", "white")
             .attr("stroke-width", 1)
-            .attr("opacity", 0.9);
+            .attr("opacity", 0.9)
+            .on("mouseover", (event, d) => {
+                tooltip
+                    .style("opacity", 1)
+                    .html(
+                        `<strong>Date:</strong> ${d.GAME_DATE}<br>
+                        <strong>Matchup:</strong> ${d.MATCHUP}<br>
+                        <strong>Final Score:</strong> ${d.FINAL_SCORE}<br>
+                        <strong>Team Plus/Minus:</strong> ${d.y}<br>
+                        <strong>Player Plus/Minus:</strong> ${d.x}`
+                    );
+            })
+            .on("mousemove", (event) => {
+                tooltip
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY - 20}px`);
+            })
+            .on("mouseout", () => {
+                tooltip.style("opacity", 0);
+            });
 
         // Add subsection labels
         const xDomain = x.domain();
@@ -253,6 +285,10 @@ const PlayerPlusMinusPlot: React.FC<PlayerPlusMinusPlotProps> = ({ data, width, 
             .attr("class", "legend-item")
             .text(`Neutral Impact (${categoryCounts["Neutral Impact"]})`);
 
+        // Clean up the tooltip on unmount
+        return () => {
+            tooltip.remove();
+        };
     }, [data, width, height]);
 
     return <svg ref={ref} width={width} height={height}></svg>;

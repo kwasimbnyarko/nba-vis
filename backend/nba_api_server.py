@@ -45,6 +45,7 @@ def get_team_players():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/player-plus-minus', methods=['GET'])
 def get_player_plus_minus():
     # Get query parameters
@@ -98,9 +99,10 @@ def get_player_plus_minus():
             merged = pd.merge(player_team_df, team_df, on='GAME_ID')
             merged = pd.merge(merged, opp_df, on='GAME_ID')
             merged['POINT_DIFF'] = merged['TEAM_PTS'] - merged['PTS_OPP']
+            merged['FINAL_SCORE'] = merged['TEAM_PTS'].astype(str) + "-" + merged['PTS_OPP'].astype(str)
 
             # Convert to JSON and append to results
-            team_results = merged[['GAME_DATE', 'MATCHUP', 'WL', 'PLUS_MINUS', 'TEAM_PTS', 'PTS_OPP', 'POINT_DIFF']].to_dict(orient='records')
+            team_results = merged[['GAME_DATE', 'MATCHUP', 'WL', 'PLUS_MINUS', 'POINT_DIFF', 'FINAL_SCORE']].to_dict(orient='records')
             results.extend(team_results)
 
         return jsonify(results)
