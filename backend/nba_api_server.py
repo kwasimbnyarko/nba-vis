@@ -291,7 +291,8 @@ def get_team_clutch_stats():
         team_clutch_stats = LeagueDashTeamClutch(
             team_id_nullable=team_id,
             season = season,
-            season_type_all_star='Regular Season'
+            season_type_all_star='Regular Season',
+            per_mode_detailed=PerModeSimple.per_game
         )
 
         #exttract data frame
