@@ -4,8 +4,10 @@ import ShotChartTable from "../charts/ShotChartTable";
 import axios from "axios";
 import { useTeams } from "../context/TeamsContext";
 import { useSeasons } from "../context/SeasonsContext";
+import { useNavigate } from "react-router-dom";
 
 const ShotChartPage: React.FC = () => {
+    const navigate = useNavigate();
     // State variables for data, loading, error, team name, player name, and season
     const [data, setData] = useState<{ LOC_X: number; LOC_Y: number; SHOT_MADE_FLAG: number }[]>([]);
     const [shootingPercentages, setShootingPercentages] = useState<{
@@ -108,7 +110,22 @@ const ShotChartPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
-            <h2 style={{textAlign:"center"}}>Shot Chart</h2>
+            <button
+                onClick={() => navigate("/")}
+                style={{
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    padding: "0.5rem 1rem",
+                    fontSize: "1rem",
+                    cursor: "pointer",
+                    marginBottom: "1rem",
+                }}
+            >
+                Back to Home
+            </button>
+            <h2 style={{ textAlign: "center" }}>Shot Chart</h2>
             {/* Team Name Dropdown */}
             <div style={{ marginBottom: "0.5rem" }}>
                 <label htmlFor="team-name" style={{ marginRight: "1rem" }}>

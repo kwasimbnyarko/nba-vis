@@ -58,7 +58,22 @@ const LeaguePlusMinusPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
-            <h2 style={{textAlign:"center"}}>League Plus Minus</h2>
+            <button
+                onClick={() => navigate("/")}
+                style={{
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    padding: "0.5rem 1rem",
+                    fontSize: "1rem",
+                    cursor: "pointer",
+                    marginBottom: "1rem",
+                }}
+            >
+                Back to Home
+            </button>
+            <h2 style={{ textAlign: "center" }}>League Plus Minus</h2>
             {/* Season Dropdown */}
             <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="season" style={{ marginRight: "1rem" }}>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PlusMinusPlot from "../charts/PlayerPlusMinusPlot";
 import axios from "axios";
 import { useSeasons } from "../context/SeasonsContext";
 
 const PlayerPlusMinusPage: React.FC = () => {
+    const navigate = useNavigate(); // Add this line
+
     // State variables for data, loading, error, player name, and season
     const [data, setData] = useState<{ x: number; y: number; win: boolean; GAME_DATE: string; MATCHUP: string; FINAL_SCORE: string }[]>([]);
     const [loading, setLoading] = useState(false);
@@ -102,7 +104,22 @@ const PlayerPlusMinusPage: React.FC = () => {
 
     return (
         <div style={{ padding: "2rem" }}>
-            <h2 style={{textAlign:"center"}}>Player Plus Minus</h2>
+            <button
+                onClick={() => navigate("/")}
+                style={{
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    padding: "0.5rem 1rem",
+                    fontSize: "1rem",
+                    cursor: "pointer",
+                    marginBottom: "1rem",
+                }}
+            >
+                Back to Home
+            </button>
+            <h2 style={{ textAlign: "center" }}>Player Plus Minus</h2>
             {/* Player Name Input */}
             <div style={{ marginBottom: "1rem" }}>
                 <label htmlFor="player-name" style={{ marginRight: "1rem" }}>

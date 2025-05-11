@@ -11,8 +11,10 @@ import {
 } from "../utils/constants";
 import StyleComp from "../components/StyleComp";
 import {getAllPlayers, myGetAllTeams} from "../services/myServerCalls";
+import { useNavigate } from "react-router-dom";
 
 function RadarPage(){
+    const navigate = useNavigate(); // Add this line
 
     //The negative implies "Comparing Players"
     const [comparingTeams, setComparingTeams] = useState<boolean>(false)
@@ -67,7 +69,21 @@ function RadarPage(){
     return (
     <div>
         <div className="play-style-section" style={{padding:"5rem"}}>
-
+                <button
+                    onClick={() => navigate("/")}
+                    style={{
+                        backgroundColor: "#007BFF",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "0.5rem 1rem",
+                        fontSize: "1rem",
+                        cursor: "pointer",
+                        marginBottom: "1rem",
+                    }}
+                >
+                    Back to Home
+                </button>
             <h2 style={{textAlign:"center"}}>Play Style</h2>
             {/*CONTROLS*/}
             <div
