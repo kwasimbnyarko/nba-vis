@@ -16,7 +16,7 @@ export default function FilterableTextField(
     //Currently handles team and player distinctions. Switch case would be better .
     const optionKeyValueNames =
         fieldName.toLowerCase().includes("team") ?
-            {key:"TEAM_ID",value:"TEAM_NAME",name:"Teams"}
+            {key:"id",value:"name",name:"Teams"}
             :         {key:"PLAYER_ID",value:"PLAYER_NAME", name:"Players"}
 
 
@@ -52,13 +52,10 @@ export default function FilterableTextField(
                     <List>
                         {filteredOptions?.map((option, index) =>
                             {if (index < 6) {
-                                return (<MenuItem key={option[optionKeyValueNames.key]} value={option[optionKeyValueNames.value]}
+                                return (<MenuItem key={index} value={option[optionKeyValueNames.value]}
                                       onClick={()=> {
-                                          onChange(
-                                              optionKeyValueNames.key === "PLAYER_ID" ?
-                                      option : option[optionKeyValueNames.key]
-                                              , variableName)
-                                          setInputValue(option[optionKeyValueNames.value])
+                                          onChange(option, variableName)
+                                          setInputValue("")
                                           setFilteredOptions([])
                                       }
                             }>

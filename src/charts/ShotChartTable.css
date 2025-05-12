@@ -1,0 +1,89 @@
+/* Container styling */
+.shot-chart-table-container {
+    margin-top: 1rem;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Filter dropdown styling */
+.filter-container {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-container label {
+    font-weight: bold;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+}
+
+.filter-container select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Table styling */
+.shot-chart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.shot-chart-table th,
+.shot-chart-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.shot-chart-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.shot-chart-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.shot-chart-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Conditional formatting for shooting percentages */
+.percentage-cell {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Green for high percentages */
+.high-percentage {
+    color: #28a745; 
+}
+
+/* Yellow for medium percentages */
+.medium-percentage {
+    color: #ffc107; 
+}
+
+/* Red for low percentages */
+.low-percentage {
+    color: #dc3545; 
+}
+
+/* Highlight the maximum attempted shots */
+.max-attempted {
+    font-weight: bold;
+    font-size: 1.05rem;
+}

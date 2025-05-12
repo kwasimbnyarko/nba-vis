@@ -3,13 +3,25 @@ import RadarChart from "../charts/RadarChart";
 import {useQueries} from "@tanstack/react-query";
 import {getPlayerStatistics} from "../services/rapidApiNba";
 import {getPlayerOrTeamStats} from "../services/myServerCalls";
+import {QUARTERS} from "../utils/constants";
 
 interface StyleCompProps {
-    players:any[], gameSituation:string, quarter:string, statCategory:string, dimensions:number
+    players:any[],
+    teams: any[],
+    isComparingTeams: boolean,
+    gameSituation:string,
+    quarter:string,
+    statCategory:string,
+    dimensions:number
 }
+
+
 const StyleComp = ({
                        players,
-                      gameSituation, quarter, statCategory,
+                        teams,
+                        isComparingTeams,
+                        gameSituation,
+                       quarter, statCategory,
                     }:StyleCompProps) => {
 
     /*
@@ -34,15 +46,53 @@ const StyleComp = ({
  *  - Contests
  * */
 
-    getPlayerOrTeamStats(players[0].playerId,0,"off",0).then(r => console.log(r))
+    const allTeamData = useQueries({
+        queries: teams.map(team => ({
+            enabled: !!teams.length,
+            queryKey: [
+                "teamData",
+                team.id,
+                statCategory,
+                gameSituation,
+                QUARTERS.indexOf(quarter)],
+            queryFn: async () => {
+                const tStats = await
+                    getPlayerOrTeamStats(
+                        0,
+                        team.id,
+                        statCategory,
+                        gameSituation,
+                        QUARTERS.indexOf(quarter))
+                return {fullName: team.name, stats: tStats}
+            },
+            staleTime: Infinity
+        })),
+        combine: (results) => {
+            return {
+                data: results.map(r => r.data),
+                pending: results.some(r => r.isPending)
+            }
+        }
+    })
 
     const allPlayerData = useQueries({
         queries: players.map(player => ({
-            queryKey: ["playerData", player.playerId, statCategory],
+            enabled: !!players.length,
+            queryKey: [
+                "playerData",
+                player.PLAYER_ID,
+                statCategory,
+                gameSituation,
+                QUARTERS.indexOf(quarter)],
             queryFn: async () => {
-                const pStats = await getPlayerStatistics(player.playerId, statCategory)
-                console.log(pStats)
-                return {fullName: player.fullName, stats: pStats}
+                const pStats = await
+                    getPlayerOrTeamStats(
+                        player.PLAYER_ID,
+                        0,
+                        statCategory,
+                    gameSituation,
+                    QUARTERS.indexOf(quarter))
+                return {fullName: player.PLAYER_NAME, stats: pStats}
             },
             staleTime: Infinity
         })),
@@ -56,8 +106,11 @@ const StyleComp = ({
 
         return (
         <div>
-            <RadarChart allPlayerData={allPlayerData}/>
-            <RadarChart allPlayerData={allPlayerData}/>
+            <RadarChart allPlayerData={
+                isComparingTeams ?
+                    allTeamData :
+                    allPlayerData
+            }/>
         </div>
     )
 };

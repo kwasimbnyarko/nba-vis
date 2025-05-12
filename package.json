@@ -6,6 +6,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@tanstack/react-query": "^5.74.4",
@@ -53,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "nodemon": "^3.1.10"
   }
 }

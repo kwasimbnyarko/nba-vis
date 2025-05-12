@@ -1,0 +1,52 @@
+/* Style for the SVG container */
+.league-plus-minus-plot {
+    background-color: #f9f9f9; 
+    border: 1px solid #ccc; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+/* Style for the chart title */
+.chart-title {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #333; 
+    text-anchor: middle;
+}
+
+/* Style for the X-axis labels */
+.x-axis-label {
+    transform: rotate(-45deg);
+    transform-origin: 0px 10px; 
+    text-anchor: end;
+    font-size: 12px;
+    fill: #555; 
+    dominant-baseline: central; 
+}
+
+/* Style for the X-axis title */
+.x-axis-title {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #333;
+    text-anchor: middle;
+}
+
+/* Style for the Y-axis title */
+.y-axis-title {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #333;
+    text-anchor: middle;
+}
+
+/* Style for the bars */
+.bar {
+    fill: #1e3a8a; 
+    transition: fill 0.2s ease; 
+    cursor: pointer; 
+}
+
+.bar:hover {
+    fill: #14274e;
+}

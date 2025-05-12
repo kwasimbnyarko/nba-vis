@@ -1,5 +1,6 @@
 import React, {useRef, useEffect} from "react";
 import * as d3 from "d3";
+import {PLAYER_GRAPH_COLORS} from "../utils/constants.ts";
 
 const RadarChart = ({
                         allPlayerData, dimensions = 400
@@ -32,19 +33,19 @@ const RadarChart = ({
     const data = allPlayerData.data
 
     useEffect(() => {
-        if (allPlayerData.pending || !allPlayerData.data.length) return;
-        console.log(data.data)
-        if (!data?.length) return;
+        if (allPlayerData.pending || !data || !data.length || !data[0].stats?.length) return;
 
         const statCount = data[0].stats.length;
         const radius = dimensions / 2 - 40;
         const levels = 5;
         const angleSlice = (2 * Math.PI) / statCount;
 
-        const allValues = data.flatMap(p => p.stats.map(s => s.value));
-        const rScale = d3.scaleLinear()
-            .domain([0, d3.max(allValues)])
-            .range([0, radius]);
+        const statScales = data[0].stats.map((_, i) => {
+            const values = data.map(p => p.stats[i].value);
+            return d3.scaleLinear()
+                .domain([0, d3.max(values)])
+                .range([0, radius]);
+        });
 
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
@@ -95,14 +96,15 @@ const RadarChart = ({
         });
 
         const radarLine = d3.lineRadial()
-            .radius(d => rScale(d.value))
+            .radius((d, i) => statScales[i](d.value))
             .angle((_, i) => i * angleSlice)
             .curve(d3.curveLinearClosed);
 
-        const color = d3.scaleOrdinal(d3.schemeCategory10);
+        // const radarPlayerColors = d3.scaleOrdinal(d3.schemeCategory10);
 
         data.forEach((player, idx) => {
-            const playerColor = color(idx);
+            // const playerColor = radarPlayerColors(idx);
+            const playerColor = PLAYER_GRAPH_COLORS[idx];
 
             g.append("path")
                 .datum(player.stats)
@@ -117,13 +119,12 @@ const RadarChart = ({
                 .enter()
                 .append("circle")
                 .attr("r", 3)
-                .attr("cx", (d, i) => rScale(d.value) * Math.cos(angleSlice * i - Math.PI / 2))
-                .attr("cy", (d, i) => rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
+                .attr("cx", (d, i) => statScales[i](d.value) * Math.cos(angleSlice * i - Math.PI / 2))
+                .attr("cy", (d, i) => statScales[i](d.value) * Math.sin(angleSlice * i - Math.PI / 2))
                 .attr("fill", playerColor)
                 .on("mouseover", function (event, d) {
                     const [x, y] = d3.pointer(event, svgRef.current);
 
-                    console.log(player)
                     tooltip
                         .style("display", "block")
                         .html(`

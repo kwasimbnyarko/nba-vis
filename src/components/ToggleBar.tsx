@@ -4,7 +4,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 export default function ToggleBar({isVertical, values, onChange, variableName} :
 {isVertical:boolean,
-    values:string[],
+    values:any[],
     onChange: (value: any,variableName:string) => void,
 variableName:string}) {
     const [selectedValue, setSelectedValue] = React.useState<string>(values[0]);
@@ -13,7 +13,6 @@ variableName:string}) {
         event: React.MouseEvent<HTMLElement>,
         newValue: string,
     ) => {
-        console.log(newValue)
         if (newValue !== null) {
             setSelectedValue(newValue);
             onChange(newValue, variableName)
